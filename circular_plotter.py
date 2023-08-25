@@ -75,6 +75,31 @@ class DraggableLine:
         self.cidmotion = self.line.figure.canvas.mpl_connect(
             'motion_notify_event', self.on_motion)
 
+    def update_predictions(self, angle):
+        scc_instance = self.line.axes.figure.scc_instance  # assuming scc_instance is attached to figure
+        X = scc_instance.data.drop(columns='class').values
+        y = scc_instance.data['class'].values
+        y_pred = []
+
+        for i, point in enumerate(X):
+            side = self.line.axes.figure.scc_instance.point_side_of_line(point, angle)
+            if side == 'left':
+                y_pred.append(0)  # assuming 0 represents one class
+            else:
+                y_pred.append(1)  # assuming 1 represents the other class
+
+        cm = confusion_matrix(y, y_pred)
+        accuracy = np.mean(y == y_pred)
+        accuracy_title = f"Confusion Matrix\nAccuracy: {accuracy:.2%}"
+
+        ax2 = self.line.axes.figure.axes[1]  # assuming ax2 is the second axes in the figure
+        ax2.clear()
+        sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", ax=ax2, cbar=False)
+        ax2.set_xlabel('Predicted labels')
+        ax2.set_ylabel('True labels')
+        ax2.set_title(accuracy_title)
+        self.line.figure.canvas.draw()
+
     def on_press(self, event):
         'on button press we will see if the mouse is over us and store some data'
         if event.inaxes != self.line.axes: return
@@ -173,6 +198,8 @@ class SCCWithChords:
         self.data = dataframe
         self.positions = []
         self.colors = []
+        self.selected_point_idx = None  # Initialize here
+        self.selected_class_idx = None  # Initialize here
         self.transform_data()
         
     def transform_data(self):
@@ -273,15 +300,15 @@ class SCCWithChords:
         # Additional code to plot other elements like circles, labels, etc.
 
         self.ax.figure.canvas.draw()
-
     
     def point_side_of_line(self, point, angle):
-        x, y = point
-        coef = [np.cos(angle), np.sin(angle)]
-        boundary = -coef[0] / coef[1]
+        print("Debug: ", point)
+        #x, y = point
+        #coef = [np.cos(angle), np.sin(angle)]
+        #boundary = -coef[0] / coef[1]
         
         # y = mx is the line equation; if y > mx, then point is above the line (or to the right)
-        return 'right' if y > boundary * x else 'left'
+        #return 'right' if y > boundary * x else 'left'
 
     def update_predictions(self, angle):
         X = self.line.axes.figure.scc_instance.data.drop(columns='class').values
@@ -294,7 +321,7 @@ class SCCWithChords:
 
         # Determine side of each data point
         for i, point in enumerate(X):
-            side = self.point_side_of_line(point, angle)
+            side = self.line.axes.figure.scc_instance.point_side_of_line(point, angle)
             class_name = y[i]
             
             if side == 'left':
@@ -369,7 +396,7 @@ class SCCWithChords:
     
     def plot(self, lda=None, dataset_name=None):
         fig = plt.figure(figsize=(12, 8))  # Adjusted the figure size for better layout
-        
+        fig.scc_instance = self
         # Connect mouse events to the methods
         fig.canvas.mpl_connect('button_press_event', self.on_press)
         fig.canvas.mpl_connect('button_release_event', self.on_release)
