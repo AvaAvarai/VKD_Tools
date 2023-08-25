@@ -6,6 +6,29 @@ Tools made for visual knowledge discovery of multidimensional classification dat
 
 These scripts are designed for visualizing multi-dimensional data. All of them allow the user to select files for data input.
 
+## Libraries
+
+These python libraries are required to run these scripts.
+
+### Data Manipulation and Analysis
+
+- pandas
+- numpy
+- scikit-learn
+
+### Data Visualization
+
+- matplotlib
+- plotly
+- PyOpenGL
+
+### User Interface and System Interaction
+
+- tkinter
+- argparse
+- subprocess
+- webbrowser
+
 ### Main Menu Script
 
 - menu.py: Provides a Tkinter-based graphical user interface as a main menu for launching the visualization scripts.
