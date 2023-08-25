@@ -58,6 +58,10 @@ def main():
     plotly_demo_button = ttk.Button(app, text="Run Plotly Demo", command=launch_plotly_demo, state=tk.DISABLED)
     plotly_demo_button.pack(pady=5, fill='x', padx=50)
 
+    global glyph_2d_button
+    glyph_2d_button = ttk.Button(app, text="Run 2D Glyph Plotter", command=launch_2d_glyph_plotter, state=tk.DISABLED)
+    glyph_2d_button.pack(pady=5, fill='x', padx=50)
+
     github_button = ttk.Button(app, text="Visit GitHub Page", command=launch_github)
     github_button.pack(pady=5, fill='x', padx=50)
 
@@ -97,10 +101,11 @@ def load_and_process_csv():
         "labels": labels
     }
     
-    global plotly_demo_button, circular_button, envelope_button
+    global plotly_demo_button, circular_button, envelope_button, glyph_2d_button
     plotly_demo_button.config(state=tk.NORMAL)
     envelope_button.config(state=tk.NORMAL)
     circular_button.config(state=tk.NORMAL)
+    glyph_2d_button.config(state=tk.NORMAL)
     
     display_dataset_info()
 
@@ -149,6 +154,17 @@ def launch_plotly_demo():
     subprocess.run([
         "python",
         "plotly_demo.py",
+        "--file_path", data_dict["file_path"]
+    ])
+    app.deiconify()  # Show the main menu again
+
+def launch_2d_glyph_plotter():
+    global data_dict
+
+    app.withdraw()  # Hide the main menu
+    subprocess.run([
+        "python",
+        "2d_glyph_plotter.py",  # Replace with the name of your 2D glyph plotting script
         "--file_path", data_dict["file_path"]
     ])
     app.deiconify()  # Show the main menu again
