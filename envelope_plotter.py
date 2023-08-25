@@ -10,6 +10,13 @@ import numpy as np
 import pandas as pd
 
 import distinctipy as dp
+import argparse
+
+# Function to parse command-line arguments
+def parse_args():
+    parser = argparse.ArgumentParser(description="Circular Plotter")
+    parser.add_argument("--file_path", required=True, help="Path to the CSV file")
+    return parser.parse_args()
 
 def draw_rectangle(center, search_radius_x, search_radius_y):
     """Draw a filled rectangular region around the given center with the specified half widths."""
@@ -507,18 +514,14 @@ class MainWindow(QMainWindow):
         layout.addWidget(self.opengl_widget)
 
         # Create the buttons
-        self.load_csv_btn = QPushButton("Load CSV")
-        self.load_csv_btn.clicked.connect(self.load_csv_file)
         self.toggle_envelope_btn = QPushButton("Toggle Envelope")
         self.toggle_envelope_btn.clicked.connect(self.toggle_envelope)
+        self.toggle_envelope_btn.setFixedSize(100, 25)
 
         # Create a horizontal layout for buttons
         button_layout = QHBoxLayout()
 
         # Add buttons to the horizontal layout and restrict their height
-        self.load_csv_btn.setMaximumHeight(25)
-        self.toggle_envelope_btn.setMaximumHeight(25)
-        button_layout.addWidget(self.load_csv_btn)
         button_layout.addWidget(self.toggle_envelope_btn)
 
         # Add the horizontal layout to the main vertical layout
@@ -553,14 +556,6 @@ class MainWindow(QMainWindow):
         center_point = QApplication.screens()[0].availableGeometry().center()
         qt_rectangle.moveCenter(center_point)
         self.move(qt_rectangle.topLeft())
-    
-    def load_csv_file(self):
-        options = QFileDialog.Option.ReadOnly
-        file_name, _ = QFileDialog.getOpenFileName(self, "Open CSV File", "datasets", "CSV Files (*.csv);;All Files (*)", options=options)
-        if file_name:
-            # Load your CSV data here using file_name
-            print(f"Loading {file_name}")
-            self.opengl_widget.load_data(file_name)
 
     def toggle_envelope(self):
         self.opengl_widget.show_envelope = not self.opengl_widget.show_envelope
@@ -568,7 +563,9 @@ class MainWindow(QMainWindow):
 
 
 if __name__ == '__main__':
+    args = parse_args()
     app = QApplication(sys.argv)
     window = MainWindow()
+    window.opengl_widget.load_data(args.file_path)  # Load the data file based on the argument
     window.show()
     sys.exit(app.exec())

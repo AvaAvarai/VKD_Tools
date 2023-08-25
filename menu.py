@@ -13,7 +13,7 @@ def main():
     app = tk.Tk()
     
     app.title("Visual Knowledge Discovery Tools")
-    app.bind('<Escape>', close_app) 
+    app.bind('<Escape>', close_app)
     app.bind('<Control-w>', close_app)
     
     global data_dict
