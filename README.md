@@ -34,6 +34,16 @@ These scripts are designed for visualizing multi-dimensional data. All of them a
 
     ![Plotly Demo](screenshots/plotly1.png)
 
+4. 2d_glyph_plotter.py: Generates 2D polygonal glyphs.
+
+    WIP images not accurate currently.
+
+5. tree_glyph_plotter.py: Generates high-dimensional data visualization using tree-like glyphs.
+    - Lossless visualization of high-dimensional data.
+    - Plots a permutation subplot matrix and saves to png output files.
+
+    ![Tree Glyph Output Demo](screenshots/wheat_seeds_combinatorial_trees_1.png)
+
 ---
 
 ### Aknowledgements
