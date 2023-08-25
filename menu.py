@@ -28,7 +28,7 @@ def main():
 
     # Styling
     style = ttk.Style()
-    style.configure('TButton', background='#3498db', foreground='black', borderwidth=0, font=('Arial', 12))
+    style.configure('TButton', background='#3498db', foreground='black', borderwidth=0, font=('Arial', 11))
     style.map('TButton', background=[('active', '#2980b9')], foreground=[('active', 'black')])
     style.configure('TLabel', font=('Arial', 14, 'bold'), foreground='black')
 
@@ -52,7 +52,7 @@ def main():
     github_button = ttk.Button(app, text="Visit GitHub Page", command=launch_github)
     github_button.pack(pady=5, fill='x', padx=50)
 
-    info_label = ttk.Label(app, text="", font=("Arial", 11))
+    info_label = ttk.Label(app, text="", font=("Arial", 9))
     info_label.pack(pady=10)
 
     app.mainloop()
@@ -94,10 +94,9 @@ def display_dataset_info():
     file_path = data_dict.get("file_path", "N/A")
     label_names = data_dict.get("labels", [])
     
-    unique_label_names = ", ".join(set(label_names))
+    unique_label_names = ", ".join(sorted(map(str, set(label_names))))  # Convert label_names to strings and sort alphabetically
     num_unique_labels = len(set(label_names))
 
-    
     info_text = f"CSV Name: {dataset_name}\nPath: {file_path}\nClass Count: {num_unique_labels}\nClass Names: {unique_label_names}"
     
     info_label.config(text=info_text)
@@ -113,8 +112,22 @@ def launch_envelope_plotter():
     app.deiconify()  # Show the main menu again
 
 def launch_plotly_demo():
+    global data_dict  # Access the data_dict to pass necessary information
+    if not data_dict:
+        info_label.config(text="Please load a dataset first.")
+        return
+
     app.withdraw()  # Hide the main menu
-    subprocess.run(["python", "plotly_demo.py"])
+    subprocess.run([
+        "python",
+        "plotly_demo.py",
+        "--dataset_name", data_dict["dataset_name"],
+        "--file_path", data_dict["file_path"],
+        "--original_dataframe", "df_copy",
+        "--features", "features",
+        "--labels", "labels",
+        "--features_normalized", "features_normalized"
+    ])
     app.deiconify()  # Show the main menu again
 
 def launch_github():
