@@ -40,13 +40,16 @@ def main():
     load_csv_button = ttk.Button(app, text="Load and Process CSV", command=load_and_process_csv)
     load_csv_button.pack(pady=5, fill='x', padx=50)
 
-    circular_button = ttk.Button(app, text="Run Circular Plotter", command=launch_circular_plotter)
+    global circular_button
+    circular_button = ttk.Button(app, text="Run Circular Plotter", command=launch_circular_plotter, state=tk.DISABLED)
     circular_button.pack(pady=5, fill='x', padx=50)
 
-    envelope_button = ttk.Button(app, text="Run Envelope Plotter", command=launch_envelope_plotter)
+    global envelope_button
+    envelope_button = ttk.Button(app, text="Run Envelope Plotter", command=launch_envelope_plotter, state=tk.DISABLED)
     envelope_button.pack(pady=5, fill='x', padx=50)
 
-    plotly_demo_button = ttk.Button(app, text="Run Plotly Demo", command=launch_plotly_demo)
+    global plotly_demo_button
+    plotly_demo_button = ttk.Button(app, text="Run Plotly Demo", command=launch_plotly_demo, state=tk.DISABLED)
     plotly_demo_button.pack(pady=5, fill='x', padx=50)
 
     github_button = ttk.Button(app, text="Visit GitHub Page", command=launch_github)
@@ -86,10 +89,17 @@ def load_and_process_csv():
         "labels": labels,
         "features_normalized": features_normalized
     }
+    
+    global plotly_demo_button, circular_button, envelope_button
+    plotly_demo_button.config(state=tk.NORMAL)
+    envelope_button.config(state=tk.NORMAL)
+    circular_button.config(state=tk.NORMAL)
+    
     display_dataset_info()
 
 def display_dataset_info():
     global data_dict, info_label
+    
     dataset_name = data_dict.get("dataset_name", "N/A")
     file_path = data_dict.get("file_path", "N/A")
     label_names = data_dict.get("labels", [])
@@ -112,10 +122,7 @@ def launch_envelope_plotter():
     app.deiconify()  # Show the main menu again
 
 def launch_plotly_demo():
-    global data_dict  # Access the data_dict to pass necessary information
-    if not data_dict:
-        info_label.config(text="Please load a dataset first.")
-        return
+    global data_dict
 
     app.withdraw()  # Hide the main menu
     subprocess.run([
