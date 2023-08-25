@@ -5,7 +5,6 @@ import argparse
 
 # Create an ArgumentParser object to handle command line arguments
 parser = argparse.ArgumentParser(description="Generate an interactive parallel coordinates plot from a dataset dictionary")
-parser.add_argument("--dataset_name", type=str, required=True, help="Name of the dataset")
 parser.add_argument("--file_path", type=str, required=True, help="File path of the dataset")
 args = parser.parse_args()
 

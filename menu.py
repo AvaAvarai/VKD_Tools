@@ -32,7 +32,10 @@ def main():
     # Styling
     style = ttk.Style()
     style.configure('TButton', background='#3498db', foreground='black', borderwidth=0, font=('Arial', 11))
-    style.map('TButton', background=[('active', '#2980b9')], foreground=[('active', 'black')])
+    style.map('TButton', 
+        background=[('active', '#2980b9'), ('disabled', '#A9A9A9')],  # Grey background for disabled state
+        foreground=[('active', 'black'), ('disabled', '#D3D3D3')]  # Grey text for disabled state
+    )
     style.configure('TLabel', font=('Arial', 14, 'bold'), foreground='black')
 
     # Display program collection's name
@@ -124,7 +127,6 @@ def launch_circular_plotter():
     subprocess.run([
         "python",
         "circular_plotter.py",
-        "--dataset_name", data_dict["dataset_name"],
         "--file_path", data_dict["file_path"]
     ])
     app.deiconify()  # Show the main menu again
@@ -136,7 +138,6 @@ def launch_envelope_plotter():
     subprocess.run([
         "python",
         "envelope_plotter.py",
-        "--dataset_name", data_dict["dataset_name"],
         "--file_path", data_dict["file_path"]
     ])
     app.deiconify()  # Show the main menu again
@@ -148,7 +149,6 @@ def launch_plotly_demo():
     subprocess.run([
         "python",
         "plotly_demo.py",
-        "--dataset_name", data_dict["dataset_name"],
         "--file_path", data_dict["file_path"]
     ])
     app.deiconify()  # Show the main menu again

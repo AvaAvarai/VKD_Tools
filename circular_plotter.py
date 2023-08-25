@@ -13,7 +13,6 @@ import argparse
 # Function to parse command-line arguments
 def parse_args():
     parser = argparse.ArgumentParser(description="Circular Plotter")
-    parser.add_argument("--dataset_name", required=True, help="Name of the dataset")
     parser.add_argument("--file_path", required=True, help="Path to the CSV file")
     return parser.parse_args()
 
@@ -524,8 +523,8 @@ class SCCWithChords:
 
 def load_and_visualize():
     args = parse_args()
-    dataset_name = args.dataset_name
     file_path = args.file_path
+    dataset_name = args.file_path.split('/')[-1].split('.')[0]
 
     # Load data from the provided file_path
     df = pd.read_csv(file_path)
