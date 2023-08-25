@@ -7,24 +7,10 @@ import argparse
 parser = argparse.ArgumentParser(description="Generate an interactive parallel coordinates plot from a dataset dictionary")
 parser.add_argument("--dataset_name", type=str, required=True, help="Name of the dataset")
 parser.add_argument("--file_path", type=str, required=True, help="File path of the dataset")
-parser.add_argument("--original_dataframe", type=str, required=True, help="Variable name for the original dataframe")
-parser.add_argument("--features", type=str, required=True, help="Variable name for features")
-parser.add_argument("--labels", type=str, required=True, help="Variable name for labels")
-parser.add_argument("--features_normalized", type=str, required=True, help="Variable name for normalized features")
 args = parser.parse_args()
 
-# Access the dataset dictionary using the provided arguments
-data_dict = {
-    "dataset_name": args.dataset_name,
-    "file_path": args.file_path,
-    "original_dataframe": args.original_dataframe,
-    "features": args.features,
-    "labels": args.labels,
-    "features_normalized": args.features_normalized
-}
-
 # Load the dataset from the provided dictionary
-df = pd.read_csv(data_dict["file_path"])
+df = pd.read_csv(args.file_path)
 
 # Convert the 'class' column to numeric values
 label_encoder = LabelEncoder()

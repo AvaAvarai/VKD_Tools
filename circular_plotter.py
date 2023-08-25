@@ -8,6 +8,14 @@ from sklearn.metrics import confusion_matrix
 import tkinter as tk
 from tkinter import filedialog
 import seaborn as sns
+import argparse
+
+# Function to parse command-line arguments
+def parse_args():
+    parser = argparse.ArgumentParser(description="Circular Plotter")
+    parser.add_argument("--dataset_name", required=True, help="Name of the dataset")
+    parser.add_argument("--file_path", required=True, help="Path to the CSV file")
+    return parser.parse_args()
 
 class DraggableNDPoint:
     def __init__(self, scc_instance):
@@ -412,6 +420,13 @@ class SCCWithChords:
 
         self.lines = []  # To store the plotted lines for hover effect
 
+        # Close the plot on 'Escape' or 'Ctrl+W' key press
+        def close_on_key(event):
+            if event.key == 'escape' or event.key == 'ctrl+w':
+                plt.close(fig)
+        
+        fig.canvas.mpl_connect('key_press_event', close_on_key)
+
         if dataset_name:
             ax.set_title(f"{dataset_name} in Dynamic Circular Coordinates")
 
@@ -508,20 +523,13 @@ class SCCWithChords:
         plt.show()
 
 def load_and_visualize():
-    # Open the file-picker dialog
-    root = tk.Tk()
-    root.withdraw()
-    filepath = filedialog.askopenfilename(title="Select a dataset", filetypes=[("CSV files", "*.csv")])
+    args = parse_args()
+    dataset_name = args.dataset_name
+    file_path = args.file_path
 
-    if not filepath:
-        print("No file selected!")
-        return
-
-    # Extract the dataset name from the filepath
-    dataset_name = filepath.split('/')[-1].split('.')[0]
-
-    # Load the chosen dataset
-    df = pd.read_csv(filepath)
+    # Load data from the provided file_path
+    df = pd.read_csv(file_path)
+    
     scc_instance = SCCWithChords(df)
     # Fit LDA and predict
     X = df.drop(columns='class').values

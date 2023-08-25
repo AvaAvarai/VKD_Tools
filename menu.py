@@ -11,8 +11,11 @@ from sklearn.preprocessing import MinMaxScaler
 def main():
     global app
     app = tk.Tk()
+    
     app.title("Visual Knowledge Discovery Tools")
-
+    app.bind('<Escape>', close_app) 
+    app.bind('<Control-w>', close_app)
+    
     global data_dict
     global info_label
     data_dict = {}
@@ -37,7 +40,7 @@ def main():
     program_label.pack(pady=20)
 
     # Buttons
-    load_csv_button = ttk.Button(app, text="Load and Process CSV", command=load_and_process_csv)
+    load_csv_button = ttk.Button(app, text="Load Dataset", command=load_and_process_csv)
     load_csv_button.pack(pady=5, fill='x', padx=50)
 
     global circular_button
@@ -59,6 +62,9 @@ def main():
     info_label.pack(pady=10)
 
     app.mainloop()
+
+def close_app(event=None):
+    app.destroy()
 
 # Function to open file picker and load CSV dataset
 def load_and_process_csv():
@@ -85,9 +91,7 @@ def load_and_process_csv():
         "dataset_name": dataset_name,
         "file_path": file_path,
         "original_dataframe": df_copy,
-        "features": features,
-        "labels": labels,
-        "features_normalized": features_normalized
+        "labels": labels
     }
     
     global plotly_demo_button, circular_button, envelope_button
@@ -106,19 +110,35 @@ def display_dataset_info():
     
     unique_label_names = ", ".join(sorted(map(str, set(label_names))))  # Convert label_names to strings and sort alphabetically
     num_unique_labels = len(set(label_names))
+    
+    sample_count = len(label_names)
 
-    info_text = f"CSV Name: {dataset_name}\nPath: {file_path}\nClass Count: {num_unique_labels}\nClass Names: {unique_label_names}"
+    info_text = f"CSV Name: {dataset_name}\nPath: {file_path}\nClass Count: {num_unique_labels}\nClass Names: {unique_label_names}\nSample Count: {sample_count}"
     
     info_label.config(text=info_text)
 
 def launch_circular_plotter():
+    global data_dict
+
     app.withdraw()  # Hide the main menu
-    subprocess.run(["python", "circular_plotter.py"])
+    subprocess.run([
+        "python",
+        "circular_plotter.py",
+        "--dataset_name", data_dict["dataset_name"],
+        "--file_path", data_dict["file_path"]
+    ])
     app.deiconify()  # Show the main menu again
 
 def launch_envelope_plotter():
+    global data_dict
+
     app.withdraw()  # Hide the main menu
-    subprocess.run(["python", "envelope_plotter.py"])
+    subprocess.run([
+        "python",
+        "envelope_plotter.py",
+        "--dataset_name", data_dict["dataset_name"],
+        "--file_path", data_dict["file_path"]
+    ])
     app.deiconify()  # Show the main menu again
 
 def launch_plotly_demo():
@@ -129,11 +149,7 @@ def launch_plotly_demo():
         "python",
         "plotly_demo.py",
         "--dataset_name", data_dict["dataset_name"],
-        "--file_path", data_dict["file_path"],
-        "--original_dataframe", "df_copy",
-        "--features", "features",
-        "--labels", "labels",
-        "--features_normalized", "features_normalized"
+        "--file_path", data_dict["file_path"]
     ])
     app.deiconify()  # Show the main menu again
 
