@@ -33,9 +33,7 @@ These python libraries are required to run these scripts.
 
 - menu.py: Provides a Tkinter-based graphical user interface as a main menu for launching the visualization scripts.
 
-![Menu Default](screenshots/menu1.png)
-
-![Menu Data Loaded](screenshots/menu2.png)
+![Menu after data loaded](screenshots/menu.png)
 
 ### Visualization Scripts
 
