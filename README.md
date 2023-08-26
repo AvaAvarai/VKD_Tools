@@ -4,7 +4,7 @@ Tools made for visual knowledge discovery of multidimensional classification dat
 
 ## Overview
 
-These scripts are designed for visualizing multi-dimensional data. All of them allow the user to select files for data input.
+These scripts are designed for visualizing and exploring multidimensional data. Particularly data used for machine learning classification tasks. We aim to produce models which are inherently explainable.
 
 ## Libraries
 
