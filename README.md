@@ -1,6 +1,8 @@
 # VKD_Tools
 
-Tools made for visual knowledge discovery of multidimensional classification data
+Tools made for visual knowledge discovery of multidimensional classification data.
+
+Launch with the menu.py script.
 
 ## Overview
 
