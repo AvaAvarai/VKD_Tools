@@ -55,7 +55,7 @@ def main():
     plotly_demo_button.pack(pady=5, fill='x', padx=50)
 
     global glyph_2d_button
-    glyph_2d_button = ttk.Button(app, text="Run 2D Glyph Plotter", command=launch_2d_glyph_plotter, state=tk.DISABLED)
+    glyph_2d_button = ttk.Button(app, text="Run GLC line Plotter", command=launch_glc_line_plotter, state=tk.DISABLED)
     glyph_2d_button.pack(pady=5, fill='x', padx=50)
 
     global tree_glyph_button
@@ -135,10 +135,10 @@ def launch_plotly_demo():
     subprocess.run(["python", "plotly_demo.py", "--file_path", data_dict["file_path"]])
     app.deiconify()
 
-def launch_2d_glyph_plotter():
+def launch_glc_line_plotter():
     global data_dict
     app.withdraw()
-    subprocess.run(["python", "2d_glyph_plotter.py", "--file_path", data_dict["file_path"]])
+    subprocess.run(["python", "glc_line_plotter.py", "--file_path", data_dict["file_path"]])
     app.deiconify()
 
 def launch_tree_glyph_plotter():

@@ -57,9 +57,12 @@ These python libraries are required to run these scripts.
 
     ![Plotly Demo](screenshots/plotly1.png)
 
-4. 2d_glyph_plotter.py: Generates 2D polygonal glyphs.
+4. glc_line_plotter.py: Generates GLC line glyphs.
+    - Generates a multidimensional GLC line graph.
+    - Projects last glyph per class to x axis.
+    - Processes data with Linear Discriminant Analysis and sorts by coefficient array.
 
-    WIP images not accurate currently.
+    ![GLC Lines Demo](screenshots/glc_lines.png)
 
 5. tree_glyph_plotter.py: Generates high-dimensional data visualization using tree-like glyphs.
     - Lossless visualization of high-dimensional data.
