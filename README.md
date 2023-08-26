@@ -39,19 +39,22 @@ These python libraries are required to run these scripts.
 
 1. envelope_plotter.py: Creates an interactive application for plotting envelope-like structures.
     - Utilizes PyQt6 for the graphical user interface.
-    - Employs OpenGL for rendering graphical elements.  
+    - Employs OpenGL for rendering graphical elements.
+    - Drag and drop searchable hyper-rectangle with WASD resizing, right-click to clear.
 
     ![Envelope Demo](screenshots/envelope1.png)
 
 2. circular_plotter.py: Produces circular plots using Matplotlib and scikit-learn.
-    - Incorporates machine learning techniques like Linear Discriminant Analysis.
-    - Handles data preprocessing using Pandas and NumPy.  
+    - Processes data with Linear Discriminant Analysis and plots discriminant line.
+    - Displays classification confusion matrix.
+    - Handles data preprocessing using Pandas and NumPy.
+    - Draggable LDA discriminant line.
 
     ![Circular Demo](screenshots/circular1.png)
 
 3. plotly_demo.py: Focuses on data visualization using Plotly.
-    - Reads the selected data file using Pandas.
-    - Creates visualizations with Plotly based on the imported data.  
+    - Plots the data in draggable axis parallel coordinates plot.
+    - Distinctly displays classes with heatmap legend.
 
     ![Plotly Demo](screenshots/plotly1.png)
 
