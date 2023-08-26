@@ -61,6 +61,10 @@ def main():
     global tree_glyph_button
     tree_glyph_button = ttk.Button(app, text="Run Tree-Glyph Plotter", command=launch_tree_glyph_plotter, state=tk.DISABLED)
     tree_glyph_button.pack(pady=5, fill='x', padx=50)
+    
+    global collocated_button
+    collocated_button = ttk.Button(app, text="Run Collocated Plotter", command=launch_collocated_plotter, state=tk.DISABLED)
+    collocated_button.pack(pady=5, fill='x', padx=50)
 
     github_button = ttk.Button(app, text="Visit GitHub Page", command=launch_github)
     github_button.pack(pady=5, fill='x', padx=50)
@@ -91,12 +95,13 @@ def load_and_process_csv():
         "labels": labels
     }
     
-    global plotly_demo_button, circular_button, envelope_button, glyph_2d_button, tree_glyph_button
+    global plotly_demo_button, circular_button, envelope_button, glyph_2d_button, tree_glyph_button, collocated_button
     plotly_demo_button.config(state=tk.NORMAL)
     envelope_button.config(state=tk.NORMAL)
     circular_button.config(state=tk.NORMAL)
     glyph_2d_button.config(state=tk.NORMAL)
     tree_glyph_button.config(state=tk.NORMAL)
+    collocated_button.config(state=tk.NORMAL)
     
     display_dataset_info()
 
@@ -145,6 +150,12 @@ def launch_tree_glyph_plotter():
     global data_dict
     app.withdraw()
     subprocess.run(["python", "tree_glyph_plotter.py", "--file_path", data_dict["file_path"]])
+    app.deiconify()
+
+def launch_collocated_plotter():
+    global data_dict
+    app.withdraw()
+    subprocess.run(["python", "collocated_plotter.py", "--file_path", data_dict["file_path"]])
     app.deiconify()
 
 def launch_github():
