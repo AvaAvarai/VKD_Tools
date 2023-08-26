@@ -1,3 +1,4 @@
+
 """
 GLC-L Type Graph Plotter
 
@@ -21,7 +22,7 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 import matplotlib.pyplot as plt
-from tkinter import Tk, Label, Button, StringVar, OptionMenu
+from tkinter import Frame, Tk, Label, Button, StringVar, OptionMenu
 
 def normalize_and_clip(df, feature_columns):
     """
@@ -92,10 +93,24 @@ class AngleFunctionSelector:
     def __init__(self, master):
         self.master = master
         master.title("Select Angle Function")
+        
+        # Center the window on the screen
+        window_width = 250
+        window_height = 150
+        screen_width = master.winfo_screenwidth()
+        screen_height = master.winfo_screenheight()
+        x_cordinate = int((screen_width / 2) - (window_width / 2))
+        y_cordinate = int((screen_height / 2) - (window_height / 2))
+        master.geometry(f"{window_width}x{window_height}+{x_cordinate}+{y_cordinate}")
 
-        self.label = Label(master, text="Select the angle function for plotting")
-        self.label.pack()
-
+        # Create a frame and pack it in the center
+        self.frame = Frame(master)
+        self.frame.pack(side="top", pady=20)
+        
+        # Add the label to the frame
+        self.label = Label(self.frame, text="Select the angle function for plotting")
+        self.label.pack(side="top")
+        
         self.angle_function = StringVar(master)
         self.angle_function.set("arccos")  # default value
         self.angle_function_map = {
@@ -103,12 +118,14 @@ class AngleFunctionSelector:
             'arcsin': np.arcsin,
             'arctan': np.arctan,
         }
-
-        self.dropdown = OptionMenu(master, self.angle_function, *self.angle_function_map.keys())
-        self.dropdown.pack()
-
-        self.plot_button = Button(master, text="Plot", command=self.plot)
-        self.plot_button.pack()
+        
+        # Add the dropdown to the frame
+        self.dropdown = OptionMenu(self.frame, self.angle_function, *self.angle_function_map.keys())
+        self.dropdown.pack(side="top")
+        
+        # Add the button to the frame
+        self.plot_button = Button(self.frame, text="Plot", command=self.plot)
+        self.plot_button.pack(side="top")
 
     def plot(self):
         selected_function = self.angle_function_map[self.angle_function.get()]
