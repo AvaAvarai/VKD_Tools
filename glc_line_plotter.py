@@ -21,6 +21,7 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 import matplotlib.pyplot as plt
+from tkinter import Tk, Label, Button, StringVar, OptionMenu
 
 def normalize_and_clip(df, feature_columns):
     """
@@ -38,7 +39,7 @@ def normalize_and_clip(df, feature_columns):
     df[feature_columns] = np.clip(df[feature_columns], 0, 1)
     return df
 
-def plot_glyphs(df, dataset_name):
+def plot_glyphs(df, dataset_name, angle_function):
     """
     Plot the GLC-L type graph for the given dataset.
     
@@ -61,7 +62,7 @@ def plot_glyphs(df, dataset_name):
         x_prev, y_prev = 0, 0
         for feature in feature_columns:
             a_i = row[feature]
-            theta_i = np.arccos(np.abs(a_i))
+            theta_i = angle_function(np.abs(a_i))
             x_i = x_prev + a_i * np.cos(theta_i)
             y_i = y_prev + a_i * np.sin(theta_i)
             plt.plot([x_prev, x_i], [y_prev, y_i], color=label_to_color[row[label_column]])
@@ -74,7 +75,7 @@ def plot_glyphs(df, dataset_name):
     custom_lines = [plt.Line2D([0], [0], color=color, lw=4) for color in label_to_color.values()]
     plt.legend(custom_lines, unique_labels, title='Class')
     
-    plt.title(f'GLC-L Type Graph of {dataset_name}')
+    plt.title(f'GLC-L Type Graph of {dataset_name} with {angle_function.__name__}()')
 
     def close(event):
         """
@@ -86,6 +87,33 @@ def plot_glyphs(df, dataset_name):
     plt.connect('key_press_event', close)
     plt.show()
 
+class AngleFunctionSelector:
+
+    def __init__(self, master):
+        self.master = master
+        master.title("Select Angle Function")
+
+        self.label = Label(master, text="Select the angle function for plotting")
+        self.label.pack()
+
+        self.angle_function = StringVar(master)
+        self.angle_function.set("arccos")  # default value
+        self.angle_function_map = {
+            'arccos': np.arccos,
+            'arcsin': np.arcsin,
+            'arctan': np.arctan,
+        }
+
+        self.dropdown = OptionMenu(master, self.angle_function, *self.angle_function_map.keys())
+        self.dropdown.pack()
+
+        self.plot_button = Button(master, text="Plot", command=self.plot)
+        self.plot_button.pack()
+
+    def plot(self):
+        selected_function = self.angle_function_map[self.angle_function.get()]
+        plot_glyphs(df, dataset_name, selected_function)
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Plot GLC-L Type Graph.')
     parser.add_argument('--file_path', type=str, help='Path to the dataset CSV file.')
@@ -94,4 +122,6 @@ if __name__ == "__main__":
     df = pd.read_csv(args.file_path)
     dataset_name = args.file_path.split('/')[-1].split('.')[0]
     
-    plot_glyphs(df, dataset_name)
+    root = Tk()
+    app = AngleFunctionSelector(root)
+    root.mainloop()
