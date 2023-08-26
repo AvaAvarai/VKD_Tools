@@ -51,8 +51,15 @@ def main():
         
         plot_current_permutation(features_normalized, labels, dataset_name, ax)
         plt.draw()
+    
+    def on_key(event):
+        if event.key == 'escape':
+            plt.close()
+        elif event.key == 'ctrl+w':
+            plt.close()
 
     fig.canvas.mpl_connect('scroll_event', on_scroll)
+    fig.canvas.mpl_connect('key_press_event', on_key)
     plt.show()
 
 def plot_current_permutation(data, labels, dataset_name, ax=None):
@@ -67,7 +74,7 @@ def plot_current_permutation(data, labels, dataset_name, ax=None):
         ax.clear()
         
     cols = permutation_list[current_perm_index]
-    ax.set_title(f"Perm: {cols}")
+    ax.set_title(f"{dataset_name} with Perm: {cols}")
 
     plot_trees(ax, data.iloc[:, list(cols)], labels, stretch_factor=5.0)
 
@@ -86,11 +93,20 @@ def draw_tree_colored_stretched(ax, x, y, z, trunk_length, branches, color, stre
 def plot_trees(ax, data, labels, stretch_factor):
     unique_labels = labels.unique()
     colormap = plt.get_cmap('tab10')
+    legend_handles = []
+    
+    for label in unique_labels:
+        color_index = np.where(unique_labels == label)[0][0]
+        color = colormap(color_index / len(unique_labels))
+        legend_handles.append(plt.Line2D([0], [0], marker='o', color='w', markerfacecolor=color, markersize=10, label=label))
+        
     for i, (index, row) in enumerate(data.iterrows()):
         label = labels.iloc[i]
         color_index = np.where(unique_labels == label)[0][0]
         color = colormap(color_index / len(unique_labels))
         draw_tree_colored_stretched(ax, row[0], row[1], row[2], row[3], zip(row[4:], row[4:]), color, stretch_factor)
+
+    ax.legend(handles=legend_handles, title='Classes')
 
 if __name__ == '__main__':
     main()
