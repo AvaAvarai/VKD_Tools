@@ -1,27 +1,26 @@
-
-"""
-GLC-L Type Graph Plotter
-
-Mathematical Algorithm:
------------------------
-Given a dataset with 'n' attributes and a label column named 'class':
-1. Normalize the attributes to the range [0, 1].
-2. For each data point in the dataset:
-    a. Initialize x_prev, y_prev = 0, 0 (starting at the origin).
-    b. For each attribute a_i:
-        i. Calculate theta_i = arccos(abs(a_i)).
-        ii. Update x_i = x_prev + a_i * cos(theta_i) and y_i = y_prev + a_i * sin(theta_i).
-        iii. Plot a line segment from (x_prev, y_prev) to (x_i, y_i).
-        iv. Update x_prev, y_prev to x_i, y_i for the next iteration.
-3. Color code each glyph according to its class label.
-
-"""
-
 import argparse
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 import matplotlib.pyplot as plt
+from matplotlib.colors import to_rgb, to_hex
+
+def lighten_color(color, amount=0.2):
+    """
+    Lightens the given color by multiplying (1-luminosity) by the given amount.
+    Input can be matplotlib color string, hex string, or RGB tuple.
+
+    Examples:
+    >> lighten_color('g', 0.3)
+    >> lighten_color('#F034A3', 0.6)
+    >> lighten_color((.3, .55, .1), 0.5)
+    """
+    try:
+        c = to_rgb(color)
+    except ValueError:
+        c = (1.0, 1.0, 1.0)
+    c = [(1 - amount) * c[i] + amount for i in [0, 1, 2]]
+    return to_hex(c)
 
 def normalize_and_clip(df, feature_columns):
     """
@@ -62,7 +61,7 @@ def plot_glyphs(df, dataset_name):
         x_prev = 0
         for feature in feature_columns:
             a_i = row[feature]
-            theta_i = np.abs(a_i)
+            theta_i = a_i
             x_i = x_prev + a_i * np.cos(theta_i)
             x_prev = x_i
         max_x_value = max(max_x_value, x_i)
@@ -73,14 +72,15 @@ def plot_glyphs(df, dataset_name):
         x_prev, y_prev = 0, 0
         for feature in feature_columns:
             a_i = row[feature]
-            theta_i = np.abs(a_i)
+            theta_i = a_i
             x_i = x_prev + a_i * np.cos(theta_i)
             y_i = y_prev + a_i * np.sin(theta_i)
             plt.plot([x_prev, x_i], [y_prev, y_i], color=label_to_color[row[label_column]], alpha=0.33)
             x_prev, y_prev = x_i, y_i
-        plt.scatter(x_i, y_i, color=label_to_color[row[label_column]], s=30)
         plt.scatter(x_i, 0, marker='|', color=label_to_color[row[label_column]], s=100)
-        
+        endpoint_color = lighten_color(label_to_color[row[label_column]], 0.3)  # Lighten the color
+        plt.scatter(x_i, y_i, color=endpoint_color, s=30)
+    
     plt.xlim(0, max_x_value + 0.1)
     plt.title(f'GLC-L Graph of {dataset_name} - Class: {first_class}')
     
@@ -89,13 +89,14 @@ def plot_glyphs(df, dataset_name):
         x_prev, y_prev = 0, 0
         for feature in feature_columns:
             a_i = row[feature]
-            theta_i = np.abs(a_i)
+            theta_i = a_i
             x_i = x_prev + a_i * np.cos(theta_i)
             y_i = y_prev + a_i * np.sin(theta_i)
-            plt.plot([x_prev, x_i], [y_prev, y_i], color=label_to_color[row[label_column]], alpha=0.5)  # Set alpha to 0.5
+            plt.plot([x_prev, x_i], [y_prev, y_i], color=label_to_color[row[label_column]], alpha=0.33)
             x_prev, y_prev = x_i, y_i
-        plt.scatter(x_i, y_i, color=label_to_color[row[label_column]], s=30)
         plt.scatter(x_i, 0, marker='|', color=label_to_color[row[label_column]], s=100)
+        endpoint_color = lighten_color(label_to_color[row[label_column]], 0.3)  # Lighten the color
+        plt.scatter(x_i, y_i, color=endpoint_color, s=30)
         
     plt.xlim(0, max_x_value + 0.1)
     plt.gca().invert_yaxis()

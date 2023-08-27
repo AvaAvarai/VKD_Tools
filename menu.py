@@ -6,7 +6,6 @@ import os
 import subprocess
 
 import pandas as pd
-from sklearn.preprocessing import MinMaxScaler
 
 def main():
     global app
@@ -37,37 +36,56 @@ def main():
     style.configure('TLabel', font=('Arial', 14, 'bold'), foreground='black')
 
     program_label = ttk.Label(app, text="Visual Knowledge Discovery Tools")
-    program_label.pack(pady=20)
+    program_label.pack(pady=10)
+
+    program_label = ttk.Label(app, text="Dataset Selection", font=("Arial", 11))
+    program_label.pack(pady=1)
 
     load_csv_button = ttk.Button(app, text="Load Dataset", command=load_and_process_csv)
     load_csv_button.pack(pady=5, fill='x', padx=50)
 
+    program_label = ttk.Label(app, text="Data Visualization Selection", font=("Arial", 11))
+    program_label.pack(pady=1)
+
     global circular_button
-    circular_button = ttk.Button(app, text="Run Circular Plotter", command=launch_circular_plotter, state=tk.DISABLED)
+    circular_button = ttk.Button(app, text="Circular Coordinates", command=launch_circular_plotter, state=tk.DISABLED)
     circular_button.pack(pady=5, fill='x', padx=50)
 
+    # Create a frame for the parallel coordinates buttons
+    parallel_coords_frame = ttk.Frame(app)
+    parallel_coords_frame.pack(pady=5, padx=50, fill='x')
+
+    # Add buttons to the parallel_coords_frame
     global envelope_button
-    envelope_button = ttk.Button(app, text="Run Envelope Plotter", command=launch_envelope_plotter, state=tk.DISABLED)
-    envelope_button.pack(pady=5, fill='x', padx=50)
+    envelope_button = ttk.Button(parallel_coords_frame, text="Parallel: Envelopes", command=launch_envelope_plotter, state=tk.DISABLED)
+    envelope_button.pack(side="left", padx=5, pady=5, expand=True, fill='x')
 
     global plotly_demo_button
-    plotly_demo_button = ttk.Button(app, text="Run Plotly Demo", command=launch_plotly_demo, state=tk.DISABLED)
-    plotly_demo_button.pack(pady=5, fill='x', padx=50)
+    plotly_demo_button = ttk.Button(parallel_coords_frame, text="Parallel: Inversions", command=launch_plotly_demo, state=tk.DISABLED)
+    plotly_demo_button.pack(side="right", padx=5, pady=5, expand=True, fill='x')
 
     global glyph_2d_button
-    glyph_2d_button = ttk.Button(app, text="Run GLC-L Plotter", command=launch_glc_line_plotter, state=tk.DISABLED)
+    glyph_2d_button = ttk.Button(app, text="General Line Coordinates", command=launch_glc_line_plotter, state=tk.DISABLED)
     glyph_2d_button.pack(pady=5, fill='x', padx=50)
 
     global tree_glyph_button
-    tree_glyph_button = ttk.Button(app, text="Run Tree-Glyph Plotter", command=launch_tree_glyph_plotter, state=tk.DISABLED)
+    tree_glyph_button = ttk.Button(app, text="Tree Glyphs", command=launch_tree_glyph_plotter, state=tk.DISABLED)
     tree_glyph_button.pack(pady=5, fill='x', padx=50)
     
     global collocated_button
-    collocated_button = ttk.Button(app, text="Run Collocated Plotter", command=launch_collocated_plotter, state=tk.DISABLED)
+    collocated_button = ttk.Button(app, text="Collocated Paired Coordinates", command=launch_collocated_plotter, state=tk.DISABLED)
     collocated_button.pack(pady=5, fill='x', padx=50)
 
-    github_button = ttk.Button(app, text="Visit GitHub Page", command=launch_github)
-    github_button.pack(pady=5, fill='x', padx=50)
+    # Create a frame for the GitHub buttons
+    github_buttons_frame = ttk.Frame(app)
+    github_buttons_frame.pack(side='bottom', pady=10)
+    
+    # Add GitHub buttons to the frame
+    project_github_button = ttk.Button(github_buttons_frame, text="Project Github Page", command=launch_github)
+    project_github_button.pack(side="left", padx=15, pady=5)
+    
+    lab_github_button = ttk.Button(github_buttons_frame, text="Lab Github Page", command=launch_lab_github)
+    lab_github_button.pack(side="right", padx=15, pady=5)
 
     info_label = ttk.Label(app, text="", font=("Arial", 9))
     info_label.pack(pady=10)
@@ -160,6 +178,9 @@ def launch_collocated_plotter():
 
 def launch_github():
     webbrowser.open("https://github.com/AvaAvarai/VKD_Tools")
+
+def launch_lab_github():
+    webbrowser.open("https://github.com/CWU-VKD-LAB")
 
 if __name__ == "__main__":
     main()
