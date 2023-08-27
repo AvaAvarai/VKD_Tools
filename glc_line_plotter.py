@@ -55,32 +55,61 @@ def plot_glyphs(df, dataset_name):
     colors = plt.cm.jet(np.linspace(0, 1, len(unique_labels)))
     label_to_color = dict(zip(unique_labels, colors))
     
-    plt.figure(figsize=(10, 10))
-    furthest_endpoints = {label: 0 for label in unique_labels}
+    # Create a figure to hold the subplots
+    plt.figure(figsize=(10, 20))
     
+    # Initialize variable to store maximum x value across both plots
+    max_x_value = 0
+    
+    # Calculate maximum x value for setting x-axis limits
     for index, row in df.iterrows():
+        x_prev = 0
+        for feature in feature_columns:
+            a_i = row[feature]
+            theta_i = np.abs(a_i)
+            x_i = x_prev + a_i * np.cos(theta_i)
+            x_prev = x_i
+        max_x_value = max(max_x_value, x_i)
+    
+    # First subplot for the first class
+    plt.subplot(2, 1, 1)
+    
+    first_class = unique_labels[0]
+    
+    for index, row in df[df[label_column] == first_class].iterrows():
         x_prev, y_prev = 0, 0
         for feature in feature_columns:
             a_i = row[feature]
-            theta_i = np.abs(a_i)  # Replaced arccos(abs(a_i)) with abs(a_i)
+            theta_i = np.abs(a_i)
             x_i = x_prev + a_i * np.cos(theta_i)
             y_i = y_prev + a_i * np.sin(theta_i)
             plt.plot([x_prev, x_i], [y_prev, y_i], color=label_to_color[row[label_column]])
             x_prev, y_prev = x_i, y_i
-        furthest_endpoints[row[label_column]] = max(furthest_endpoints[row[label_column]], x_i)
-            
-    for label, x in furthest_endpoints.items():
-        plt.plot([x, x], [0, 0.1], color=label_to_color[label], linestyle='--', linewidth=2)
+    
+    plt.xlim(0, max_x_value + 0.1)  # Set x-axis limits
+    plt.title(f'GLC-L Type Graph of {dataset_name} - Class: {first_class}')
+    
+    # Second subplot for additional classes with inverted y-axis
+    plt.subplot(2, 1, 2)
+    
+    for index, row in df[df[label_column] != first_class].iterrows():
+        x_prev, y_prev = 0, 0
+        for feature in feature_columns:
+            a_i = row[feature]
+            theta_i = np.abs(a_i)
+            x_i = x_prev + a_i * np.cos(theta_i)
+            y_i = y_prev + a_i * np.sin(theta_i)
+            plt.plot([x_prev, x_i], [y_prev, y_i], color=label_to_color[row[label_column]])
+            x_prev, y_prev = x_i, y_i
+    
+    plt.xlim(0, max_x_value + 0.1)  # Set x-axis limits
+    plt.gca().invert_yaxis()  # Invert y-axis
+    plt.title(f'GLC-L Graph of {dataset_name} - Additional Classes')
     
     custom_lines = [plt.Line2D([0], [0], color=color, lw=4) for color in label_to_color.values()]
     plt.legend(custom_lines, unique_labels, title='Class')
     
-    plt.title(f'GLC-L Type Graph of {dataset_name}')  # Removed angle_function from title
-
     def close(event):
-        """
-        Close the plot window on pressing 'Escape' or 'Ctrl+W' keys.
-        """
         if event.key == 'escape' or (event.key == 'w' and event.inaxes == None):
             plt.close(event.canvas.figure)
             
