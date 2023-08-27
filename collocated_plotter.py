@@ -1,11 +1,38 @@
+import os
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 import pandas as pd
 import numpy as np
 from itertools import permutations
 from sklearn.preprocessing import MinMaxScaler
 import argparse
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+
+# Global variable to store LDA coefficients
+lda_coefficients = None
+
+def sort_permutations_by_lda(perms, lda_coefficients):
+    # Sort individual features by LDA coefficients
+    sorted_features = np.argsort(lda_coefficients)[::-1]
+    
+    # Create the "most important" permutation based on sorted features
+    most_important_perm = tuple(sorted_features)
+    
+    # Add this permutation at the beginning
+    if most_important_perm not in perms:
+        perms = [most_important_perm] + perms
+    else:
+        # Move the most important permutation to the beginning
+        perms.remove(most_important_perm)
+        perms = [most_important_perm] + perms
+    
+    return perms
+
+def run_lda(features, labels):
+    global lda_coefficients
+    lda = LinearDiscriminantAnalysis()
+    lda.fit(features, labels)
+    lda_coefficients = np.abs(lda.coef_).mean(axis=0)  # Taking the absolute and averaging over classes if multi-class
 
 # Initialize the current index for permutations
 current_idx = 0
@@ -25,7 +52,7 @@ def update_plot(event):
 
 def draw_plot():
     global current_idx, features_normalized, labels, unique_labels, colors, perms
-
+    
     # Create a new figure
     fig = plt.gcf()
     
@@ -79,13 +106,15 @@ def draw_plot():
 
             line = Line2D([fig_coord1[0], fig_coord2[0]], [fig_coord1[1], fig_coord2[1]], transform=fig.transFigure, color=color)
             fig.lines.append(line)
-
-    plt.suptitle(f'Permutation {current_idx + 1} out of {len(perms)}')
+    plt.suptitle(f'{dataset_name} in Collocated Paired Coordinates')
     plt.draw()
 
 def visualize_dataset(file_path):
-    global features_normalized, labels, unique_labels, colors, perms
-
+    global features_normalized, labels, unique_labels, colors, perms, lda_coefficients, current_idx, dataset_name
+    
+    # Extract the dataset name from the file path
+    dataset_name = os.path.splitext(os.path.basename(file_path))[0]
+    
     # Read the dataset
     df = pd.read_csv(file_path)
     
@@ -106,13 +135,23 @@ def visualize_dataset(file_path):
     # Create a color map
     colors = plt.cm.jet(np.linspace(0, 1, len(unique_labels)))
 
+    # Run LDA and get coefficients
+    run_lda(features_normalized, labels)
+
     # Generate all permutations of the feature vectors
     num_features = features_normalized.shape[1]
     perms = list(permutations(range(num_features)))
 
+    # Sort permutations based on LDA coefficients
+    perms = sort_permutations_by_lda(perms, lda_coefficients)
+
+    # Reset current_idx to 0 so that the first permutation displayed is the most important one
+    current_idx = 0  # Reset index
+    
     fig = plt.figure(figsize=(15, 8))
     fig.canvas.mpl_connect('scroll_event', update_plot)
     fig.canvas.mpl_connect('key_press_event', exit_program)  # Connect exit function here
+    
     draw_plot()
     plt.show()
 
