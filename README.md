@@ -2,7 +2,12 @@
 
 Tools made for visual knowledge discovery of multidimensional classification data.
 
-Launch with the menu.py script.
+Get started by launching the `menu.py` script and loading a dataset.  
+Datasets can be added to the datasets folder.  
+
+- must have a column with header of 'class' for labels
+- other columns assumed to be feature columns  
+- top header row labels the 'class' and feature columns
 
 ## Overview
 
