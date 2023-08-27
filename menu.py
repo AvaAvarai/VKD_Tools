@@ -30,7 +30,7 @@ def main():
 
     style = ttk.Style()
     style.configure('TButton', background='#3498db', foreground='black', borderwidth=0, font=('Arial', 11))
-    style.map('TButton', 
+    style.map('TButton',
         background=[('active', '#2980b9'), ('disabled', '#A9A9A9')],  
         foreground=[('active', 'black'), ('disabled', '#D3D3D3')]
     )
@@ -159,7 +159,7 @@ def launch_collocated_plotter():
     app.deiconify()
 
 def launch_github():
-    webbrowser.open("https://github.com/CWU-VKD-LAB")
+    webbrowser.open("https://github.com/AvaAvarai/VKD_Tools")
 
 if __name__ == "__main__":
     main()
