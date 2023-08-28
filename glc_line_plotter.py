@@ -90,6 +90,7 @@ def plot_glyphs(df, dataset_name, coefficients=None):
     X = df[feature_columns].values
     y = df[label_column].values
     lda_model.fit(X, y)
+    lda_accuracy = lda_model.score(X, y)
     plt.figure(figsize=(10, 20))
     
     max_x_value = 0
@@ -104,6 +105,7 @@ def plot_glyphs(df, dataset_name, coefficients=None):
             max_x_value = max(max_x_value, x_i)
     
     plt.subplot(2, 1, 1)
+    
     first_class = unique_labels[0]
     for index, row in df[df[label_column] == first_class].iterrows():
         x_prev, y_prev = 0, 0
@@ -121,13 +123,13 @@ def plot_glyphs(df, dataset_name, coefficients=None):
     midpoint_x = find_lda_separation_line(df, lda_model, feature_columns, label_column, angles)
     plot_lda_separation_line(midpoint_x)
     plt.xlim(0, max_x_value + 0.1)
-    plt.title(f'GLC-L Graph of {dataset_name} - Class: {first_class}')
+    plt.title(f'GLC-L Graph of {dataset_name} - Class: {first_class}  |  LDA Accuracy: {lda_accuracy:.2f}')
     
     plt.subplot(2, 1, 2)
     for other_class in unique_labels[1:]:
         for index, row in df[df[label_column] == other_class].iterrows():
             x_prev, y_prev = 0, 0
-            for i, feature in enumerate(feature_columns):  # Added 'i' to enumerate
+            for i, feature in enumerate(feature_columns):
                 a_i = row[feature]
                 theta_i = angles[i]
                 x_i = x_prev + a_i * np.cos(theta_i)
@@ -143,7 +145,8 @@ def plot_glyphs(df, dataset_name, coefficients=None):
     plt.xlim(0, max_x_value + 0.1)
     plt.gca().invert_yaxis()
     second_class = unique_labels[1]
-    plt.title(f'GLC-L Graph of {dataset_name} - {second_class}')
+    
+    plt.title(f'GLC-L Graph of {dataset_name} - {second_class}  |  LDA Accuracy: {lda_accuracy:.2f}')
     
     custom_lines = [plt.Line2D([0], [0], color=color, lw=4) for color in label_to_color.values()]
     plt.legend(custom_lines, unique_labels, title='Class')
