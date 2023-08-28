@@ -1,15 +1,33 @@
+import math
 import os
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 import pandas as pd
 import numpy as np
-from itertools import permutations
 from sklearn.preprocessing import MinMaxScaler
 import argparse
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from itertools import islice, cycle, permutations
 
-# Global variable to store LDA coefficients
-lda_coefficients = None
+# Initialize global variables
+current_perm_index = 0
+current_permutation = None
+perms = None  # This will hold the cycle object
+
+def perm_generator(n):
+    if n == 1:
+        yield (0,)
+    else:
+        for perm in perm_generator(n - 1):
+            for i in range(n):
+                yield perm[:i] + (n - 1,) + perm[i:]
+
+# This function regenerates the generator up to a given index
+def regenerate_perms_to_index(n, index):
+    gen = perm_generator(n)
+    for _ in range(index + 1):
+        perm = next(gen)
+    return gen, perm
 
 def sort_permutations_by_lda(perms, lda_coefficients):
     # Sort individual features by LDA coefficients
@@ -42,16 +60,23 @@ def exit_program(event):
         plt.close()
 
 def update_plot(event):
-    global current_idx
+    global current_permutation, perms, current_perm_index  # Use global instead of nonlocal
+    num_features = features_normalized.shape[1]
     if event.button == 'up':
-        current_idx += 1
-    elif event.button == 'down':
-        current_idx -= 1
+        current_permutation = next(perms)
+        current_perm_index += 1
+    else:
+        # To go to the previous permutation, regenerate the cycle up to the current index - 1
+        if current_perm_index > 0:
+            current_perm_index -= 1
+            perms = cycle(permutations(range(num_features), num_features))
+            current_permutation = next(islice(perms, current_perm_index, current_perm_index + 1))
+
     plt.clf()
     draw_plot()
 
 def draw_plot():
-    global current_idx, features_normalized, labels, unique_labels, colors, perms
+    global current_idx, features_normalized, labels, unique_labels, colors, current_permutation  # Added current_permutation here
     
     # Create a new figure
     fig = plt.gcf()
@@ -59,11 +84,14 @@ def draw_plot():
     # Attach exit function to the 'key_press_event'
     fig.canvas.mpl_connect('key_press_event', exit_program)
 
-    # Bound the current index
-    current_idx %= len(perms)
+    # Calculate the total number of permutations (factorial of the number of features)
+    total_perms = math.factorial(features_normalized.shape[1])
+    
+    # Modulo operation to ensure current_idx is within range
+    current_idx %= total_perms
 
     # Get the current permutation
-    perm = perms[current_idx]
+    perm = current_permutation  # Replaced current_perm with current_permutation
 
     # Calculate the number of subplots needed
     num_subplots = len(perm) // 2 + (len(perm) % 2)
@@ -90,7 +118,7 @@ def draw_plot():
             ax.scatter(x, y, color=color, s=50, marker='x')
 
         # Move the axis labels to the top-left corner by setting them as the title
-        ax.set_title(f"X{i + 1} on x / X{j + 1} on y")
+        ax.set_title(f"(X{i + 1}, X{j + 1})")
 
     # Connect points for each feature vector sample across subplots
     for l in range(len(features_normalized)):
@@ -104,14 +132,14 @@ def draw_plot():
             fig_coord1 = fig.transFigure.inverted().transform(coord1)
             fig_coord2 = fig.transFigure.inverted().transform(coord2)
 
-            line = Line2D([fig_coord1[0], fig_coord2[0]], [fig_coord1[1], fig_coord2[1]], transform=fig.transFigure, color=color)
+            line = Line2D([fig_coord1[0], fig_coord2[0]], [fig_coord1[1], fig_coord2[1]], transform=fig.transFigure, color=color, alpha=0.33)
             fig.lines.append(line)
-    cols = perms[current_idx]
-    plt.suptitle(f'{dataset_name} in Collocated Paired Coordinates with Permutation: {cols}')
+    cols = current_permutation
+    plt.suptitle(f'{dataset_name} in Collocated Paired Coordinates with Permutation: {perm}')
     plt.draw()
 
 def visualize_dataset(file_path):
-    global features_normalized, labels, unique_labels, colors, perms, lda_coefficients, current_idx, dataset_name
+    global features_normalized, labels, unique_labels, colors, lda_coefficients, current_perm_index, current_permutation, perms, dataset_name
     
     # Extract the dataset name from the file path
     dataset_name = os.path.splitext(os.path.basename(file_path))[0]
@@ -139,15 +167,17 @@ def visualize_dataset(file_path):
     # Run LDA and get coefficients
     run_lda(features_normalized, labels)
 
-    # Generate all permutations of the feature vectors
+    # Initialize the generator and current index
     num_features = features_normalized.shape[1]
-    perms = list(permutations(range(num_features)))
-
-    # Sort permutations based on LDA coefficients
-    perms = sort_permutations_by_lda(perms, lda_coefficients)
-
-    # Reset current_idx to 0 so that the first permutation displayed is the most important one
-    current_idx = 0  # Reset index
+    perms = cycle(permutations(range(num_features), num_features))
+    current_perm_index = 0  # Initialize to zero
+    
+    # Get the first permutation based on LDA coefficients
+    current_permutation = sort_permutations_by_lda([next(perms)], lda_coefficients)[0]
+    
+    # Reset the generator and current index
+    current_idx = 0
+    perms, current_perm = regenerate_perms_to_index(num_features, current_idx)
     
     fig = plt.figure(figsize=(15, 8))
     fig.canvas.mpl_connect('scroll_event', update_plot)
