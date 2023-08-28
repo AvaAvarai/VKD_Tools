@@ -1,4 +1,5 @@
 import argparse
+import random
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
@@ -20,12 +21,32 @@ def compute_angles(coefficients):
     angles = np.arccos(np.abs(transformed_coefficients))
     return angles
 
-def get_lda_coefficients(df, feature_columns, label_column):
-    X = df[feature_columns].values
+def coefficients_search(df, feature_columns, label_column, epochs=100):
+    best_coefficients = []
+    best_accuracy = 0
+    
+    for n in range(epochs):
+        # Generate random coefficients between -1 and 1
+        coefficients = [random.uniform(-1, 1) for _ in range(len(feature_columns))]
+        
+        # Convert coefficients to angles
+        angles = compute_angles(coefficients)
+        
+        # Evaluate the current set of coefficients
+        current_accuracy = evaluateCoefficients(df, feature_columns, label_column, angles)
+        
+        if current_accuracy > best_accuracy:
+            best_coefficients = coefficients
+            best_accuracy = current_accuracy
+    
+    return best_coefficients, best_accuracy
+
+def evaluateCoefficients(df, feature_columns, label_column, angles):
+    X = df[feature_columns].apply(lambda row: calculate_final_x(row, angles), axis=1).values.reshape(-1, 1)
     y = df[label_column].values
-    lda = LinearDiscriminantAnalysis()
-    lda.fit(X, y)
-    return lda.coef_[0]
+    lda_model = LinearDiscriminantAnalysis()
+    lda_model.fit(X, y)
+    return lda_model.score(X, y)
 
 # Add this function to calculate the final x-coordinate of the GLC-L glyph
 def calculate_final_x(row, angles):
@@ -36,6 +57,15 @@ def calculate_final_x(row, angles):
         x_i = x_prev + a_i * np.cos(theta_i)
         x_prev = x_i
     return x_i
+
+def calculate_final_y(row, angles):
+    y_prev = 0
+    for i, feature in enumerate(row.index):
+        a_i = row[i] / df[feature].max()  # Length of line segment
+        theta_i = angles[i]  # Angle based on coefficient
+        y_i = y_prev + a_i * np.sin(theta_i)
+        y_prev = y_i
+    return y_i
 
 # Modify this function to use calculate_final_x
 def find_lda_separation_line(df, lda_model, feature_columns, label_column, angles):
@@ -50,19 +80,25 @@ def find_lda_separation_line(df, lda_model, feature_columns, label_column, angle
 
     # Get the x-projections of the misclassified points
     x_projections = misclassified_df[feature_columns].apply(lambda row: calculate_final_x(row, angles), axis=1)
+    y_projections = misclassified_df[feature_columns].apply(lambda row: calculate_final_y(row, angles), axis=1)
     
     # Find the left-most and right-most misclassified points
     leftmost_x = x_projections.min()
     rightmost_x = x_projections.max()
+    
+    leftmost_y = y_projections.min()
+    rightmost_y = y_projections.max()
 
     # Calculate the midpoint between the left-most and right-most misclassified points
     midpoint_x = (leftmost_x + rightmost_x) / 2
-    return midpoint_x
+    midpoint_y = (leftmost_y + rightmost_y) / 2
+    return midpoint_x, midpoint_y
 
-def plot_lda_separation_line(midpoint_x):
+def plot_lda_separation_line(midpoint_x, midpoint_y):
     plt.axvline(x=midpoint_x, color='orange', linestyle='--', linewidth=1)
+    plt.axhline(y=midpoint_y, color='orange', linestyle='--', linewidth=1)
 
-def plot_glyphs(df, dataset_name, coefficients=None):
+def plot_glyphs(df, dataset_name, coefficients=None, accuracy=None):
     feature_columns = [col for col in df.columns if col != 'class']
     label_column = 'class'
     df = attribute_based_scaling(df, feature_columns)
@@ -80,7 +116,7 @@ def plot_glyphs(df, dataset_name, coefficients=None):
     X = df[feature_columns].values
     y = df[label_column].values
     lda_model.fit(X, y)
-    lda_accuracy = lda_model.score(X, y)
+    
     plt.figure(figsize=(8, 8))
     
     max_x_value = 0
@@ -111,11 +147,11 @@ def plot_glyphs(df, dataset_name, coefficients=None):
         plt.scatter(x_i, y_i, marker='s', color='white', s=12, zorder=3)
         plt.scatter(x_i, y_i, marker='s', color='black', s=10, zorder=3)
     # Find the midpoint for the LDA separation line and plot it
-    midpoint_x = find_lda_separation_line(df, lda_model, feature_columns, label_column, angles)
-    plot_lda_separation_line(midpoint_x)
+    midpoint_x, midpoint_y = find_lda_separation_line(df, lda_model, feature_columns, label_column, angles)
+    plot_lda_separation_line(midpoint_x, midpoint_y)
     plt.xlim(0, max_x_value + 0.1)
     classes = ', '.join(unique_labels[1:])
-    plt.title(f'GLC-L Graph of {dataset_name} - {first_class} vs {classes}  LDA Accuracy: {lda_accuracy:.2f}')
+    plt.title(f'GLC-L Graph of {dataset_name} - {first_class} vs {classes}  LDA Accuracy: {accuracy:.2f}')
     
     plt.subplot(2, 1, 2)
     plt.grid(color='lightgray', linestyle='--', linewidth=0.5)
@@ -134,8 +170,8 @@ def plot_glyphs(df, dataset_name, coefficients=None):
             plt.scatter(x_i, y_i, marker='s', color='white', s=12, zorder=3)
             plt.scatter(x_i, y_i, marker='s', color='black', s=10, zorder=3)
     # Find the midpoint for the LDA separation line and plot it
-    midpoint_x = find_lda_separation_line(df, lda_model, feature_columns, label_column, angles)
-    plot_lda_separation_line(midpoint_x)
+    midpoint_x, midpoint_y = find_lda_separation_line(df, lda_model, feature_columns, label_column, angles)
+    plot_lda_separation_line(midpoint_x, midpoint_y)
 
     plt.xlim(0, max_x_value + 0.1)
     
@@ -162,6 +198,6 @@ if __name__ == "__main__":
     feature_columns = [col for col in df.columns if col != 'class']
     label_column = 'class'
     
-    coefficients = get_lda_coefficients(df, feature_columns, label_column)
-    
-    plot_glyphs(df, dataset_name, coefficients)
+    coefficients, accuracy = coefficients_search(df, feature_columns, label_column, epochs=100)
+
+    plot_glyphs(df, dataset_name, coefficients, accuracy)

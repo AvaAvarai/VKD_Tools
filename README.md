@@ -70,9 +70,10 @@ These python libraries are required to run these scripts.
     - Displays first class on top subplot, other classes below.
     - Projects last glyph per class to x axis.
     - Processes data with Linear Discriminant Analysis and sorts by coefficient array.
-    - Plots the LDA boundary with a yellow dotted line.
+    - Plots the LDA boundary with a yellow dotted line on x and y axis.
+    - Uses GLC-AL algorithm to run a 100 epoch search for maximized accuracy of coefficients.
 
-    ![GLC Lines Demo](screenshots/glc_lines.png)
+    ![GLC Lines Demo](screenshots/glc_l_al.png)
 
 5. tree_glyph_plotter.py: Generates high-dimensional data visualization using tree-like glyphs.
     - Lossless visualization of high-dimensional data.
