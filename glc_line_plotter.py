@@ -3,25 +3,7 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 import matplotlib.pyplot as plt
-from matplotlib.colors import to_rgb, to_hex
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
-
-def lighten_color(color, amount=0.2):
-    """
-    Lightens the given color by multiplying (1-luminosity) by the given amount.
-    Input can be matplotlib color string, hex string, or RGB tuple.
-
-    Examples:
-    >> lighten_color('g', 0.3)
-    >> lighten_color('#F034A3', 0.6)
-    >> lighten_color((.3, .55, .1), 0.5)
-    """
-    try:
-        c = to_rgb(color)
-    except ValueError:
-        c = (1.0, 1.0, 1.0)
-    c = [(1 - amount) * c[i] + amount for i in [0, 1, 2]]
-    return to_hex(c)
 
 def normalize_and_clip(df, feature_columns):
     """
@@ -173,7 +155,6 @@ def plot_glyphs(df, dataset_name, coefficients=None):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Plot GLC-L Type Graph.')
     parser.add_argument('--file_path', type=str, help='Path to the dataset CSV file.')
-    parser.add_argument('--coefficients', type=str, help='Comma-separated coefficients for the linear function. Should match the number of features.')
     args = parser.parse_args()
     
     df = pd.read_csv(args.file_path)
@@ -182,12 +163,6 @@ if __name__ == "__main__":
     feature_columns = [col for col in df.columns if col != 'class']
     label_column = 'class'
     
-    if args.coefficients:
-        coefficients = np.array([float(x) for x in args.coefficients.split(',')])
-        if len(coefficients) != len(feature_columns):
-            print("Error: The number of coefficients must match the number of features.")
-            exit(1)
-    else:
-        coefficients = get_lda_coefficients(df, feature_columns, label_column)
+    coefficients = get_lda_coefficients(df, feature_columns, label_column)
     
     plot_glyphs(df, dataset_name, coefficients)

@@ -112,7 +112,7 @@ def draw_tree_colored_stretched(ax, x, y, z, trunk_length, branches, color, stre
     x *= stretch_factor
     y *= stretch_factor
     z *= stretch_factor
-    ax.plot([x, x], [y, y], [z, z + trunk_length], c=color)
+    ax.plot([x, x], [y, y], [z, z + trunk_length], c=color, alpha=0.33)
     z_current = z + trunk_length
     for length, angle in branches:
         angle_scaled = angle * 45
