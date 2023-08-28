@@ -145,7 +145,7 @@ def plot_glyphs(df, dataset_name, coefficients=None, accuracy=None):
             x_prev, y_prev = x_i, y_i
         plt.scatter(x_i, 0, marker='|', color=label_to_color[row[label_column]], s=100)
         plt.scatter(x_i, y_i, marker='s', color='white', s=12, zorder=3)
-        plt.scatter(x_i, y_i, marker='s', color='black', s=10, zorder=3)
+        plt.scatter(x_i, y_i, marker='s', color='black', s=8, zorder=3)
     # Find the midpoint for the LDA separation line and plot it
     midpoint_x, midpoint_y = find_lda_separation_line(df, lda_model, feature_columns, label_column, angles)
     plot_lda_separation_line(midpoint_x, midpoint_y)
@@ -168,7 +168,7 @@ def plot_glyphs(df, dataset_name, coefficients=None, accuracy=None):
                 x_prev, y_prev = x_i, y_i
             plt.scatter(x_i, 0, marker='|', color=label_to_color[row[label_column]], s=100)
             plt.scatter(x_i, y_i, marker='s', color='white', s=12, zorder=3)
-            plt.scatter(x_i, y_i, marker='s', color='black', s=10, zorder=3)
+            plt.scatter(x_i, y_i, marker='s', color='black', s=8, zorder=3)
     # Find the midpoint for the LDA separation line and plot it
     midpoint_x, midpoint_y = find_lda_separation_line(df, lda_model, feature_columns, label_column, angles)
     plot_lda_separation_line(midpoint_x, midpoint_y)
