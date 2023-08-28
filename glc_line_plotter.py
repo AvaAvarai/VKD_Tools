@@ -156,7 +156,7 @@ def plot_glyphs(df, dataset_name, coefficients=None, accuracy=None):
     plot_lda_separation_line(midpoint_x, midpoint_y)
     plt.xlim(0, max_x_value + 0.1)
     plt.ylim(0, max_y_value + 0.1)
-    classes = ', '.join(unique_labels[1:])
+    classes = ', '.join(map(str, unique_labels[1:]))
     plt.title(f'GLC-L Graph of {dataset_name} - {first_class} vs {classes}  LDA Accuracy: {accuracy:.2f}')
     
     plt.subplot(2, 1, 2)
