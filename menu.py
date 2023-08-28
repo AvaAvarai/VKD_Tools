@@ -47,10 +47,6 @@ def main():
     program_label = ttk.Label(app, text="Data Visualization Selection", font=("Arial", 11))
     program_label.pack(pady=1)
 
-    global circular_button
-    circular_button = ttk.Button(app, text="Circular Coordinates", command=launch_circular_plotter, state=tk.DISABLED)
-    circular_button.pack(pady=5, fill='x', padx=100)
-
     # Create a frame for the parallel coordinates buttons
     parallel_coords_frame = ttk.Frame(app)
     parallel_coords_frame.pack(pady=5, padx=50, fill='x')
@@ -64,17 +60,21 @@ def main():
     plotly_demo_button = ttk.Button(parallel_coords_frame, text="Parallel: Inversions", command=launch_plotly_demo, state=tk.DISABLED)
     plotly_demo_button.pack(side="right", padx=5, expand=True, fill='x')
 
-    global glyph_2d_button
-    glyph_2d_button = ttk.Button(app, text="General Line Coordinates Linear", command=launch_glc_line_plotter, state=tk.DISABLED)
-    glyph_2d_button.pack(pady=5, fill='x', padx=100)
+    global collocated_button
+    collocated_button = ttk.Button(app, text="Collocated Paired Coordinates", command=launch_collocated_plotter, state=tk.DISABLED)
+    collocated_button.pack(pady=5, fill='x', padx=100)    
 
     global tree_glyph_button
     tree_glyph_button = ttk.Button(app, text="Tree Glyphs", command=launch_tree_glyph_plotter, state=tk.DISABLED)
     tree_glyph_button.pack(pady=5, fill='x', padx=100)
     
-    global collocated_button
-    collocated_button = ttk.Button(app, text="Collocated Paired Coordinates", command=launch_collocated_plotter, state=tk.DISABLED)
-    collocated_button.pack(pady=5, fill='x', padx=100)
+    global glc_button
+    glc_button = ttk.Button(app, text="General Line Coordinates Linear", command=launch_glc_line_plotter, state=tk.DISABLED)
+    glc_button.pack(pady=5, fill='x', padx=100)
+    
+    global circular_button
+    circular_button = ttk.Button(app, text="Circular Coordinates", command=launch_circular_plotter, state=tk.DISABLED)
+    circular_button.pack(pady=5, fill='x', padx=100)
 
     # Create a frame for the GitHub buttons
     github_buttons_frame = ttk.Frame(app)
@@ -113,11 +113,11 @@ def load_and_process_csv():
         "labels": labels
     }
     
-    global plotly_demo_button, circular_button, envelope_button, glyph_2d_button, tree_glyph_button, collocated_button
+    global plotly_demo_button, circular_button, envelope_button, glc_button, tree_glyph_button, collocated_button
     plotly_demo_button.config(state=tk.NORMAL)
     envelope_button.config(state=tk.NORMAL)
     circular_button.config(state=tk.NORMAL)
-    glyph_2d_button.config(state=tk.NORMAL)
+    glc_button.config(state=tk.NORMAL)
     tree_glyph_button.config(state=tk.NORMAL)
     collocated_button.config(state=tk.NORMAL)
     

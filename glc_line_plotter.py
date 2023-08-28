@@ -105,7 +105,8 @@ def plot_glyphs(df, dataset_name, coefficients=None):
             max_x_value = max(max_x_value, x_i)
     
     plt.subplot(2, 1, 1)
-    
+    plt.grid(color='lightgray', linestyle='--', linewidth=0.5)
+
     first_class = unique_labels[0]
     for index, row in df[df[label_column] == first_class].iterrows():
         x_prev, y_prev = 0, 0
@@ -114,11 +115,11 @@ def plot_glyphs(df, dataset_name, coefficients=None):
             theta_i = angles[i]
             x_i = x_prev + a_i * np.cos(theta_i)
             y_i = y_prev + a_i * np.sin(theta_i)
-            plt.plot([x_prev, x_i], [y_prev, y_i], color=label_to_color[row[label_column]], alpha=0.1, zorder=1)
+            plt.plot([x_prev, x_i], [y_prev, y_i], color=label_to_color[row[label_column]], alpha=0.1, zorder=2)
             x_prev, y_prev = x_i, y_i
         plt.scatter(x_i, 0, marker='|', color=label_to_color[row[label_column]], s=100)
-        plt.scatter(x_i, y_i, marker='s', color='white', s=12, zorder=2)
-        plt.scatter(x_i, y_i, marker='s', color='black', s=10, zorder=2)
+        plt.scatter(x_i, y_i, marker='s', color='white', s=12, zorder=3)
+        plt.scatter(x_i, y_i, marker='s', color='black', s=10, zorder=3)
     # Find the midpoint for the LDA separation line and plot it
     midpoint_x = find_lda_separation_line(df, lda_model, feature_columns, label_column, angles)
     plot_lda_separation_line(midpoint_x)
@@ -126,6 +127,8 @@ def plot_glyphs(df, dataset_name, coefficients=None):
     plt.title(f'GLC-L Graph of {dataset_name} - Class: {first_class}  |  LDA Accuracy: {lda_accuracy:.2f}')
     
     plt.subplot(2, 1, 2)
+    plt.grid(color='lightgray', linestyle='--', linewidth=0.5)
+
     for other_class in unique_labels[1:]:
         for index, row in df[df[label_column] == other_class].iterrows():
             x_prev, y_prev = 0, 0
@@ -134,15 +137,17 @@ def plot_glyphs(df, dataset_name, coefficients=None):
                 theta_i = angles[i]
                 x_i = x_prev + a_i * np.cos(theta_i)
                 y_i = y_prev + a_i * np.sin(theta_i)
-                plt.plot([x_prev, x_i], [y_prev, y_i], color=label_to_color[row[label_column]], alpha=0.1, zorder=1)
+                plt.plot([x_prev, x_i], [y_prev, y_i], color=label_to_color[row[label_column]], alpha=0.1, zorder=2)
                 x_prev, y_prev = x_i, y_i
             plt.scatter(x_i, 0, marker='|', color=label_to_color[row[label_column]], s=100)
-            plt.scatter(x_i, y_i, marker='s', color='white', s=12, zorder=2)
-            plt.scatter(x_i, y_i, marker='s', color='black', s=10, zorder=2)
+            plt.scatter(x_i, y_i, marker='s', color='white', s=12, zorder=3)
+            plt.scatter(x_i, y_i, marker='s', color='black', s=10, zorder=3)
     # Find the midpoint for the LDA separation line and plot it
     midpoint_x = find_lda_separation_line(df, lda_model, feature_columns, label_column, angles)
     plot_lda_separation_line(midpoint_x)
+
     plt.xlim(0, max_x_value + 0.1)
+    
     plt.gca().invert_yaxis()
     second_class = unique_labels[1]
     
