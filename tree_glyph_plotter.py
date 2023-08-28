@@ -118,7 +118,7 @@ def draw_tree_colored_stretched(ax, x, y, z, trunk_length, branches, color, stre
         angle_scaled = angle * 45
         dx = length * math.sin(math.radians(angle_scaled))
         dy = length * math.cos(math.radians(angle_scaled))
-        ax.plot([x, x + dx], [y, y + dy], [z_current, z_current], c=color)
+        ax.plot([x, x + dx], [y, y + dy], [z_current, z_current], c=color, alpha=0.33)
 
 def plot_trees(ax, data, labels, stretch_factor):
     unique_labels = labels.unique()

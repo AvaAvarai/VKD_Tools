@@ -4,6 +4,7 @@ import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 import matplotlib.pyplot as plt
 from matplotlib.colors import to_rgb, to_hex
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 
 def lighten_color(color, amount=0.2):
     """
@@ -38,17 +39,29 @@ def normalize_and_clip(df, feature_columns):
     df[feature_columns] = np.clip(df[feature_columns], 0, 1)
     return df
 
-def plot_glyphs(df, dataset_name):
-    """
-    Plot the GLC-L type graph for the given dataset.
-    
-    Parameters:
-    - df: DataFrame containing the data.
-    - dataset_name: Name of the dataset to be used in the plot title.
-    """
+def compute_angles(coefficients):
+    c_max = np.max(coefficients)
+    normalized_coefficients = coefficients / c_max
+    transformed_coefficients = np.cos(np.arccos(normalized_coefficients))
+    angles = np.arccos(np.abs(transformed_coefficients))
+    return angles
+
+def get_lda_coefficients(df, feature_columns, label_column):
+    X = df[feature_columns].values
+    y = df[label_column].values
+    lda = LinearDiscriminantAnalysis()
+    lda.fit(X, y)
+    return lda.coef_[0]
+
+def plot_glyphs(df, dataset_name, coefficients=None):
     feature_columns = [col for col in df.columns if col != 'class']
     label_column = 'class'
     df = normalize_and_clip(df, feature_columns)
+    
+    if coefficients is None:
+        coefficients = np.ones(len(feature_columns))
+        
+    angles = compute_angles(coefficients)
     
     unique_labels = df[label_column].unique()
     colors = plt.cm.jet(np.linspace(0, 1, len(unique_labels)))
@@ -59,9 +72,9 @@ def plot_glyphs(df, dataset_name):
     max_x_value = 0
     for index, row in df.iterrows():
         x_prev = 0
-        for feature in feature_columns:
-            a_i = row[feature]
-            theta_i = a_i
+        for i, feature in enumerate(feature_columns):
+            a_i = row[feature]  # Length of line segment
+            theta_i = angles[i]  # Angle based on coefficient
             x_i = x_prev + a_i * np.cos(theta_i)
             x_prev = x_i
         max_x_value = max(max_x_value, x_i)
@@ -70,9 +83,9 @@ def plot_glyphs(df, dataset_name):
     first_class = unique_labels[0]
     for index, row in df[df[label_column] == first_class].iterrows():
         x_prev, y_prev = 0, 0
-        for feature in feature_columns:
+        for i, feature in enumerate(feature_columns):  # Added 'i' to enumerate
             a_i = row[feature]
-            theta_i = a_i
+            theta_i = angles[i]
             x_i = x_prev + a_i * np.cos(theta_i)
             y_i = y_prev + a_i * np.sin(theta_i)
             plt.plot([x_prev, x_i], [y_prev, y_i], color=label_to_color[row[label_column]], alpha=0.33)
@@ -87,9 +100,9 @@ def plot_glyphs(df, dataset_name):
     plt.subplot(2, 1, 2)
     for index, row in df[df[label_column] != first_class].iterrows():
         x_prev, y_prev = 0, 0
-        for feature in feature_columns:
+        for i, feature in enumerate(feature_columns):  # Added 'i' to enumerate
             a_i = row[feature]
-            theta_i = a_i
+            theta_i = angles[i]
             x_i = x_prev + a_i * np.cos(theta_i)
             y_i = y_prev + a_i * np.sin(theta_i)
             plt.plot([x_prev, x_i], [y_prev, y_i], color=label_to_color[row[label_column]], alpha=0.33)
@@ -115,9 +128,21 @@ def plot_glyphs(df, dataset_name):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Plot GLC-L Type Graph.')
     parser.add_argument('--file_path', type=str, help='Path to the dataset CSV file.')
+    parser.add_argument('--coefficients', type=str, help='Comma-separated coefficients for the linear function. Should match the number of features.')
     args = parser.parse_args()
     
     df = pd.read_csv(args.file_path)
     dataset_name = args.file_path.split('/')[-1].split('.')[0]
     
-    plot_glyphs(df, dataset_name)
+    feature_columns = [col for col in df.columns if col != 'class']
+    label_column = 'class'
+    
+    if args.coefficients:
+        coefficients = np.array([float(x) for x in args.coefficients.split(',')])
+        if len(coefficients) != len(feature_columns):
+            print("Error: The number of coefficients must match the number of features.")
+            exit(1)
+    else:
+        coefficients = get_lda_coefficients(df, feature_columns, label_column)
+    
+    plot_glyphs(df, dataset_name, coefficients)
