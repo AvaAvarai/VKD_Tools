@@ -66,10 +66,11 @@ These python libraries are required to run these scripts.
 
     ![Plotly Demo](screenshots/plotly1.png)
 
-4. glc_line_plotter.py: Generates GLC line glyphs.
-    - Generates a multidimensional GLC line graph.
+4. glc_line_plotter.py: Generates GLC linear plot.
+    - Displays first class on top subplot, other classes below.
     - Projects last glyph per class to x axis.
     - Processes data with Linear Discriminant Analysis and sorts by coefficient array.
+    - Plots the LDA boundary with a yellow dotted line.
 
     ![GLC Lines Demo](screenshots/glc_lines.png)
 

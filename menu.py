@@ -19,7 +19,7 @@ def main():
     global info_label
     data_dict = {}
     
-    window_width = 450
+    window_width = 425
     window_height = 500
     screen_width = app.winfo_screenwidth()
     screen_height = app.winfo_screenheight()
@@ -42,14 +42,14 @@ def main():
     program_label.pack(pady=1)
 
     load_csv_button = ttk.Button(app, text="Load Dataset", command=load_and_process_csv)
-    load_csv_button.pack(pady=5, fill='x', padx=50)
+    load_csv_button.pack(pady=5, fill='x', padx=100)
 
     program_label = ttk.Label(app, text="Data Visualization Selection", font=("Arial", 11))
     program_label.pack(pady=1)
 
     global circular_button
     circular_button = ttk.Button(app, text="Circular Coordinates", command=launch_circular_plotter, state=tk.DISABLED)
-    circular_button.pack(pady=5, fill='x', padx=50)
+    circular_button.pack(pady=5, fill='x', padx=100)
 
     # Create a frame for the parallel coordinates buttons
     parallel_coords_frame = ttk.Frame(app)
@@ -65,16 +65,16 @@ def main():
     plotly_demo_button.pack(side="right", padx=5, expand=True, fill='x')
 
     global glyph_2d_button
-    glyph_2d_button = ttk.Button(app, text="General Line Coordinates", command=launch_glc_line_plotter, state=tk.DISABLED)
-    glyph_2d_button.pack(pady=5, fill='x', padx=50)
+    glyph_2d_button = ttk.Button(app, text="General Line Coordinates Linear", command=launch_glc_line_plotter, state=tk.DISABLED)
+    glyph_2d_button.pack(pady=5, fill='x', padx=100)
 
     global tree_glyph_button
     tree_glyph_button = ttk.Button(app, text="Tree Glyphs", command=launch_tree_glyph_plotter, state=tk.DISABLED)
-    tree_glyph_button.pack(pady=5, fill='x', padx=50)
+    tree_glyph_button.pack(pady=5, fill='x', padx=100)
     
     global collocated_button
     collocated_button = ttk.Button(app, text="Collocated Paired Coordinates", command=launch_collocated_plotter, state=tk.DISABLED)
-    collocated_button.pack(pady=5, fill='x', padx=50)
+    collocated_button.pack(pady=5, fill='x', padx=100)
 
     # Create a frame for the GitHub buttons
     github_buttons_frame = ttk.Frame(app)
