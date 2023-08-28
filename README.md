@@ -76,6 +76,7 @@ These python libraries are required to run these scripts.
     - Lossless visualization of high-dimensional data.
     - Plots a permutation of the feature vecture in tree glyphs.
     - Plotted permutation can be cycled with the mouse wheel.
+    - Displays Linear Discriminant Analysis resultant coefficient determined permutation first.
 
     ![Tree Glyph Output Demo](screenshots/wheat_seeds_combinatorial_trees_1.png)
 
@@ -84,6 +85,7 @@ These python libraries are required to run these scripts.
     - Connects the feature vector samples with a line across subplots.
     - When feature vector is odd in length duplicates last attribute.
     - Mousewheel scrolls through permutations of the feature vector.
+    - Displays Linear Discriminant Analysis resultant coefficient determined permutation first.
 
     ![Collocated Paired Coordinates Demo](screenshots/collocated.png)
 

@@ -106,7 +106,8 @@ def draw_plot():
 
             line = Line2D([fig_coord1[0], fig_coord2[0]], [fig_coord1[1], fig_coord2[1]], transform=fig.transFigure, color=color)
             fig.lines.append(line)
-    plt.suptitle(f'{dataset_name} in Collocated Paired Coordinates')
+    cols = perms[current_idx]
+    plt.suptitle(f'{dataset_name} in Collocated Paired Coordinates with Permutation: {cols}')
     plt.draw()
 
 def visualize_dataset(file_path):

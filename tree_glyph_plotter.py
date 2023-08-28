@@ -6,14 +6,33 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from itertools import permutations
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 import argparse
 
 # Initialize global index for permutation cycling
 current_perm_index = 0
 permutation_list = []
+lda_coefficients = None  # LDA coefficients
+
+def sort_permutations_by_lda(perms, lda_coefficients):
+    # Sort individual features by LDA coefficients
+    sorted_features = np.argsort(lda_coefficients)[::-1]
+    most_important_perm = tuple(sorted_features)
+    if most_important_perm not in perms:
+        perms = [most_important_perm] + perms
+    else:
+        perms.remove(most_important_perm)
+        perms = [most_important_perm] + perms
+    return perms
+
+def run_lda(features, labels):
+    global lda_coefficients
+    lda = LinearDiscriminantAnalysis()
+    lda.fit(features, labels)
+    lda_coefficients = np.abs(lda.coef_).mean(axis=0)
 
 def main():
-    global permutation_list
+    global permutation_list, current_perm_index
     parser = argparse.ArgumentParser(description='Plot tree glyphs based on the input dataset.')
     parser.add_argument('--file_path', type=str, required=True, help='Path to the dataset CSV file.')
     
@@ -32,9 +51,18 @@ def main():
 
     dataset_name = os.path.basename(file_path).split(".")[0]
     
+    # Run LDA and get coefficients
+    run_lda(features_normalized, labels)
+    
     # Generate the list of permutations
     num_features = features_normalized.shape[1]
     permutation_list = list(permutations(range(num_features), num_features))
+
+    # Sort permutations based on LDA coefficients
+    permutation_list = sort_permutations_by_lda(permutation_list, lda_coefficients)
+
+    # Reset current_perm_index to 0 so that the first permutation displayed is the most important one
+    current_perm_index = 0
 
     fig = plt.figure(figsize=(8, 8))
     ax = fig.add_subplot(111, projection='3d')
@@ -74,7 +102,7 @@ def plot_current_permutation(data, labels, dataset_name, ax=None):
         ax.clear()
         
     cols = permutation_list[current_perm_index]
-    ax.set_title(f"{dataset_name} with Perm: {cols}")
+    ax.set_title(f"{dataset_name} Tree-Glyphs with Permutation: {cols}")
 
     plot_trees(ax, data.iloc[:, list(cols)], labels, stretch_factor=5.0)
 
