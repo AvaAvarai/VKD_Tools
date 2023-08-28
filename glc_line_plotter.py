@@ -5,20 +5,10 @@ from sklearn.preprocessing import MinMaxScaler
 import matplotlib.pyplot as plt
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 
-def normalize_and_clip(df, feature_columns):
-    """
-    Normalize the feature columns to the range [0, 1] using Min-Max scaling and clip any out-of-range values.
-    
-    Parameters:
-    - df: DataFrame containing the data.
-    - feature_columns: List of feature column names to be normalized.
-    
-    Returns:
-    - DataFrame with normalized and clipped feature columns.
-    """
-    scaler = MinMaxScaler(feature_range=(0, 1))
-    df[feature_columns] = scaler.fit_transform(df[feature_columns])
-    df[feature_columns] = np.clip(df[feature_columns], 0, 1)
+def attribute_based_scaling(df, feature_columns):
+    for col in feature_columns:
+        col_max = df[col].max()
+        df[col] = df[col] / col_max
     return df
 
 def compute_angles(coefficients):
@@ -41,7 +31,7 @@ def get_lda_coefficients(df, feature_columns, label_column):
 def calculate_final_x(row, angles):
     x_prev = 0
     for i, feature in enumerate(row.index):
-        a_i = row[i]  # Length of line segment
+        a_i = row[i] / df[feature].max()  # Length of line segment
         theta_i = angles[i]  # Angle based on coefficient
         x_i = x_prev + a_i * np.cos(theta_i)
         x_prev = x_i
@@ -75,7 +65,7 @@ def plot_lda_separation_line(midpoint_x):
 def plot_glyphs(df, dataset_name, coefficients=None):
     feature_columns = [col for col in df.columns if col != 'class']
     label_column = 'class'
-    df = normalize_and_clip(df, feature_columns)
+    df = attribute_based_scaling(df, feature_columns)
     
     if coefficients is None:
         coefficients = np.ones(len(feature_columns))
@@ -91,7 +81,7 @@ def plot_glyphs(df, dataset_name, coefficients=None):
     y = df[label_column].values
     lda_model.fit(X, y)
     lda_accuracy = lda_model.score(X, y)
-    plt.figure(figsize=(10, 20))
+    plt.figure(figsize=(8, 8))
     
     max_x_value = 0
     for unique_label in unique_labels:
@@ -124,7 +114,8 @@ def plot_glyphs(df, dataset_name, coefficients=None):
     midpoint_x = find_lda_separation_line(df, lda_model, feature_columns, label_column, angles)
     plot_lda_separation_line(midpoint_x)
     plt.xlim(0, max_x_value + 0.1)
-    plt.title(f'GLC-L Graph of {dataset_name} - Class: {first_class}  |  LDA Accuracy: {lda_accuracy:.2f}')
+    classes = ', '.join(unique_labels[1:])
+    plt.title(f'GLC-L Graph of {dataset_name} - {first_class} vs {classes}  LDA Accuracy: {lda_accuracy:.2f}')
     
     plt.subplot(2, 1, 2)
     plt.grid(color='lightgray', linestyle='--', linewidth=0.5)
@@ -149,9 +140,6 @@ def plot_glyphs(df, dataset_name, coefficients=None):
     plt.xlim(0, max_x_value + 0.1)
     
     plt.gca().invert_yaxis()
-    second_class = unique_labels[1]
-    
-    plt.title(f'GLC-L Graph of {dataset_name} - {second_class}  |  LDA Accuracy: {lda_accuracy:.2f}')
     
     custom_lines = [plt.Line2D([0], [0], color=color, lw=4) for color in label_to_color.values()]
     plt.legend(custom_lines, unique_labels, title='Class')
