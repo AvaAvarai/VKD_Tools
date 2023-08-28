@@ -112,9 +112,10 @@ def plot_glyphs(df, dataset_name, coefficients=None):
             theta_i = angles[i]
             x_i = x_prev + a_i * np.cos(theta_i)
             y_i = y_prev + a_i * np.sin(theta_i)
-            plt.plot([x_prev, x_i], [y_prev, y_i], color=label_to_color[row[label_column]], alpha=0.33, zorder=1)
+            plt.plot([x_prev, x_i], [y_prev, y_i], color=label_to_color[row[label_column]], alpha=0.1, zorder=1)
             x_prev, y_prev = x_i, y_i
         plt.scatter(x_i, 0, marker='|', color=label_to_color[row[label_column]], s=100)
+        plt.scatter(x_i, y_i, marker='s', color='white', s=12, zorder=2)
         plt.scatter(x_i, y_i, marker='s', color='black', s=10, zorder=2)
     # Find the midpoint for the LDA separation line and plot it
     midpoint_x = find_lda_separation_line(df, lda_model, feature_columns, label_column, angles)
@@ -131,9 +132,10 @@ def plot_glyphs(df, dataset_name, coefficients=None):
                 theta_i = angles[i]
                 x_i = x_prev + a_i * np.cos(theta_i)
                 y_i = y_prev + a_i * np.sin(theta_i)
-                plt.plot([x_prev, x_i], [y_prev, y_i], color=label_to_color[row[label_column]], alpha=0.33, zorder=1)
+                plt.plot([x_prev, x_i], [y_prev, y_i], color=label_to_color[row[label_column]], alpha=0.1, zorder=1)
                 x_prev, y_prev = x_i, y_i
             plt.scatter(x_i, 0, marker='|', color=label_to_color[row[label_column]], s=100)
+            plt.scatter(x_i, y_i, marker='s', color='white', s=12, zorder=2)
             plt.scatter(x_i, y_i, marker='s', color='black', s=10, zorder=2)
     # Find the midpoint for the LDA separation line and plot it
     midpoint_x = find_lda_separation_line(df, lda_model, feature_columns, label_column, angles)
