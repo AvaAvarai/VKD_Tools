@@ -24,6 +24,8 @@ def normalize_and_clip(df, feature_columns):
 def compute_angles(coefficients):
     c_max = np.max(coefficients)
     normalized_coefficients = coefficients / c_max
+    # Clip the values to be in the range [-1, 1]
+    normalized_coefficients = np.clip(normalized_coefficients, -1, 1)
     transformed_coefficients = np.cos(np.arccos(normalized_coefficients))
     angles = np.arccos(np.abs(transformed_coefficients))
     return angles
@@ -65,7 +67,6 @@ def find_lda_separation_line(df, lda_model, feature_columns, label_column, angle
 
     # Calculate the midpoint between the left-most and right-most misclassified points
     midpoint_x = (leftmost_x + rightmost_x) / 2
-    print(midpoint_x)
     return midpoint_x
 
 def plot_lda_separation_line(midpoint_x):
