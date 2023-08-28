@@ -8,6 +8,7 @@ from itertools import permutations
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 import argparse
+from itertools import islice, cycle
 
 # Initialize global index for permutation cycling
 current_perm_index = 0
@@ -32,7 +33,7 @@ def run_lda(features, labels):
     lda_coefficients = np.abs(lda.coef_).mean(axis=0)
 
 def main():
-    global permutation_list, current_perm_index
+    global current_perm_index, current_permutation, perm_gen
     parser = argparse.ArgumentParser(description='Plot tree glyphs based on the input dataset.')
     parser.add_argument('--file_path', type=str, required=True, help='Path to the dataset CSV file.')
     
@@ -54,32 +55,36 @@ def main():
     # Run LDA and get coefficients
     run_lda(features_normalized, labels)
     
-    # Generate the list of permutations
+    # Get the first permutation based on LDA coefficients
+    sorted_features = np.argsort(lda_coefficients)[::-1]
+    current_permutation = tuple(sorted_features)
+    
+    # Initialize the generator and current index
     num_features = features_normalized.shape[1]
-    permutation_list = list(permutations(range(num_features), num_features))
-
-    # Sort permutations based on LDA coefficients
-    permutation_list = sort_permutations_by_lda(permutation_list, lda_coefficients)
-
-    # Reset current_perm_index to 0 so that the first permutation displayed is the most important one
-    current_perm_index = 0
-
+    perm_gen = cycle(permutations(range(num_features), num_features))
+    current_perm_index = 0  # Initialize to zero
+    
     fig = plt.figure(figsize=(8, 8))
     ax = fig.add_subplot(111, projection='3d')
     
-    # Initial plot
-    plot_current_permutation(features_normalized, labels, dataset_name, ax)
+    # Initial plot based on LDA
+    plot_current_permutation(features_normalized, labels, dataset_name, ax, current_permutation)
 
     def on_scroll(event):
-        global current_perm_index
+        global current_permutation, perm_gen, current_perm_index  # Use global instead of nonlocal
         if event.button == 'up':
-            current_perm_index = (current_perm_index + 1) % len(permutation_list)
+            current_permutation = next(perm_gen)
+            current_perm_index += 1
         else:
-            current_perm_index = (current_perm_index - 1) % len(permutation_list)
-        
-        plot_current_permutation(features_normalized, labels, dataset_name, ax)
+            # To go to the previous permutation, regenerate the cycle up to the current index - 1
+            if current_perm_index > 0:
+                current_perm_index -= 1
+                perm_gen = cycle(permutations(range(num_features), num_features))
+                current_permutation = next(islice(perm_gen, current_perm_index, current_perm_index + 1))
+
+        plot_current_permutation(features_normalized, labels, dataset_name, ax, current_permutation)
         plt.draw()
-    
+
     def on_key(event):
         if event.key == 'escape':
             plt.close()
@@ -90,10 +95,7 @@ def main():
     fig.canvas.mpl_connect('key_press_event', on_key)
     plt.show()
 
-def plot_current_permutation(data, labels, dataset_name, ax=None):
-    global current_perm_index
-    global permutation_list
-    
+def plot_current_permutation(data, labels, dataset_name, ax=None, current_permutation=None):
     if ax is None:
         plt.close('all')
         fig = plt.figure(figsize=(8, 8))
@@ -101,8 +103,8 @@ def plot_current_permutation(data, labels, dataset_name, ax=None):
     else:
         ax.clear()
         
-    cols = permutation_list[current_perm_index]
-    ax.set_title(f"{dataset_name} Tree-Glyphs with Permutation: {cols}")
+    cols = current_permutation
+    ax.set_title(f"{dataset_name} Tree Glyphs; Permutation:\n{cols}")
 
     plot_trees(ax, data.iloc[:, list(cols)], labels, stretch_factor=5.0)
 

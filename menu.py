@@ -58,11 +58,11 @@ def main():
     # Add buttons to the parallel_coords_frame
     global envelope_button
     envelope_button = ttk.Button(parallel_coords_frame, text="Parallel: Envelopes", command=launch_envelope_plotter, state=tk.DISABLED)
-    envelope_button.pack(side="left", padx=5, pady=5, expand=True, fill='x')
+    envelope_button.pack(side="left", padx=5, expand=True, fill='x')
 
     global plotly_demo_button
     plotly_demo_button = ttk.Button(parallel_coords_frame, text="Parallel: Inversions", command=launch_plotly_demo, state=tk.DISABLED)
-    plotly_demo_button.pack(side="right", padx=5, pady=5, expand=True, fill='x')
+    plotly_demo_button.pack(side="right", padx=5, expand=True, fill='x')
 
     global glyph_2d_button
     glyph_2d_button = ttk.Button(app, text="General Line Coordinates", command=launch_glc_line_plotter, state=tk.DISABLED)
@@ -81,10 +81,10 @@ def main():
     github_buttons_frame.pack(side='bottom', pady=10)
     
     # Add GitHub buttons to the frame
-    project_github_button = ttk.Button(github_buttons_frame, text="Project Github Page", command=launch_github)
+    project_github_button = ttk.Button(github_buttons_frame, text="Project Github", command=launch_github)
     project_github_button.pack(side="left", padx=15, pady=5)
     
-    lab_github_button = ttk.Button(github_buttons_frame, text="Lab Github Page", command=launch_lab_github)
+    lab_github_button = ttk.Button(github_buttons_frame, text="Lab Github", command=launch_lab_github)
     lab_github_button.pack(side="right", padx=15, pady=5)
 
     info_label = ttk.Label(app, text="", font=("Arial", 9))

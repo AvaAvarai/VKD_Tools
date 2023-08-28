@@ -78,7 +78,7 @@ These python libraries are required to run these scripts.
     - Plotted permutation can be cycled with the mouse wheel.
     - Displays Linear Discriminant Analysis resultant coefficient determined permutation first.
 
-    ![Tree Glyph Output Demo](screenshots/wheat_seeds_combinatorial_trees_1.png)
+    ![Tree Glyph Output Demo](screenshots/wheat_seeds_tree_glyphs.png)
 
 6. collocated_plotter.py: Generataes a collocated paired coordinates subplot sequence.
     - Plots all attributes of feature vectores as normalized paired axis.
