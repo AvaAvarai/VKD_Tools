@@ -96,7 +96,7 @@ def find_lda_separation_line(df, lda_model, feature_columns, label_column, angle
 
 def plot_lda_separation_line(midpoint_x, midpoint_y):
     plt.axvline(x=midpoint_x, color='orange', linestyle='--', linewidth=1)
-    plt.axhline(y=midpoint_y, color='orange', linestyle='--', linewidth=1)
+    #plt.axhline(y=midpoint_y, color='orange', linestyle='--', linewidth=1)
 
 def plot_glyphs(df, dataset_name, coefficients=None, accuracy=None):
     feature_columns = [col for col in df.columns if col != 'class']
@@ -120,15 +120,20 @@ def plot_glyphs(df, dataset_name, coefficients=None, accuracy=None):
     plt.figure(figsize=(8, 8))
     
     max_x_value = 0
+    max_y_value = 0
     for unique_label in unique_labels:
         for index, row in df[df[label_column] == unique_label].iterrows():
             x_prev = 0
+            y_prev = 0
             for i, feature in enumerate(feature_columns):
                 a_i = row[feature]
                 theta_i = angles[i]
                 x_i = x_prev + a_i * np.cos(theta_i)
+                y_i = y_prev + a_i * np.sin(theta_i)
                 x_prev = x_i
+                y_prev = y_i
             max_x_value = max(max_x_value, x_i)
+            max_y_value = max(max_y_value, y_i)
     
     plt.subplot(2, 1, 1)
     plt.grid(color='lightgray', linestyle='--', linewidth=0.5)
@@ -150,6 +155,7 @@ def plot_glyphs(df, dataset_name, coefficients=None, accuracy=None):
     midpoint_x, midpoint_y = find_lda_separation_line(df, lda_model, feature_columns, label_column, angles)
     plot_lda_separation_line(midpoint_x, midpoint_y)
     plt.xlim(0, max_x_value + 0.1)
+    plt.ylim(0, max_y_value + 0.1)
     classes = ', '.join(unique_labels[1:])
     plt.title(f'GLC-L Graph of {dataset_name} - {first_class} vs {classes}  LDA Accuracy: {accuracy:.2f}')
     
@@ -174,7 +180,7 @@ def plot_glyphs(df, dataset_name, coefficients=None, accuracy=None):
     plot_lda_separation_line(midpoint_x, midpoint_y)
 
     plt.xlim(0, max_x_value + 0.1)
-    
+    plt.ylim(0, max_y_value + 0.1)
     plt.gca().invert_yaxis()
     
     custom_lines = [plt.Line2D([0], [0], color=color, lw=4) for color in label_to_color.values()]
