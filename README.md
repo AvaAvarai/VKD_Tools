@@ -1,6 +1,9 @@
 # VKD_Tools
 
-Tools made for visual knowledge discovery of multidimensional classification data.
+## Overview
+
+Tools made for visual knowledge discovery of multidimensional classification data.  
+For visualizing and exploring multidimensional data.  
 
 Get started by launching the `menu.py` script and loading a dataset.  
 Datasets can be added to the datasets folder.  
@@ -9,9 +12,7 @@ Datasets can be added to the datasets folder.
 - other columns assumed to be feature columns  
 - top header row labels the 'class' and feature columns
 
-## Overview
-
-These scripts are designed for visualizing and exploring multidimensional data. Particularly data used for machine learning classification tasks. We aim to produce models which are inherently explainable.
+Then, pick a visualization to explore, each visualization is described below.
 
 ## Libraries
 
