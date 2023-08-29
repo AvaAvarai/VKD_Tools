@@ -21,7 +21,7 @@ def compute_angles(coefficients):
     angles = np.arccos(np.abs(transformed_coefficients))
     return angles
 
-def coefficients_search(df, feature_columns, label_column, epochs=100):
+def coefficients_search(df, feature_columns, label_column, epochs=10):
     best_coefficients = []
     best_accuracy = 0
     
@@ -133,8 +133,7 @@ def plot_glyphs(df, dataset_name, coefficients=None, accuracy=None):
     X = df[feature_columns].values
     y = df[label_column].values
     lda_model.fit(X, y)
-    
-    plt.figure(figsize=(8, 8))
+    plt.figure(figsize=(8, 8), constrained_layout=True)
     
     max_x_value = 0
     max_y_value = 0
@@ -152,11 +151,13 @@ def plot_glyphs(df, dataset_name, coefficients=None, accuracy=None):
             max_x_value = max(max_x_value, x_i)
             max_y_value = max(max_y_value, y_i)
     
+    max_max = max(max_x_value, max_y_value)
+    
     midpoint_x, midpoint_y = find_lda_separation_line(df, lda_model, feature_columns, label_column, angles)
     percentages = calculate_endpoint_percentages(df, lda_model, feature_columns, label_column, angles, midpoint_x)
     half_y_value = max_y_value / 2
     plt.subplot(2, 1, 1)
-    plt.grid(color='lightgray', linestyle='--', linewidth=0.5)
+    #plt.grid(color='lightgray', linestyle='--', linewidth=0.5)
     custom_lines = [plt.Line2D([0], [0], color=color, lw=4) for color in label_to_color.values()]
     plt.legend(custom_lines, unique_labels, title='Class')
     first_class = unique_labels[0]
@@ -176,21 +177,23 @@ def plot_glyphs(df, dataset_name, coefficients=None, accuracy=None):
 
     first_class = unique_labels[0]
     left_percentage, right_percentage = percentages[first_class]
-    plt.text(0.05, half_y_value, f"{left_percentage:.2f}%", fontsize=12, ha="left", va="center")
-    plt.text(max_x_value - 0.1, half_y_value, f"{right_percentage:.2f}%", fontsize=12, ha="right", va="center")
+    plt.xticks([])  # Remove x-axis numbering
+    plt.yticks([])  # Remove y-axis numbering
+    plt.text(0.05, 0.52, f"{left_percentage:.2f}% of {first_class}", fontsize=12, transform=plt.gcf().transFigure)
+    plt.text(0.95, 0.52, f"{right_percentage:.2f}% of {first_class}", fontsize=12, ha="right", transform=plt.gcf().transFigure)
 
     plot_lda_separation_line(midpoint_x, midpoint_y)
-    plt.xlim(0, max_x_value + 0.1)
-    plt.ylim(0, max_y_value + 0.1)
+    plt.xlim(0, max_max + 0.1)
+    plt.ylim(0, max_max + 0.1)
 
     classes = ', '.join(map(str, unique_labels[1:]))
     plt.title(f'GLC-L Graph of {dataset_name} - {first_class} vs {classes}  LDA Accuracy: {accuracy:.2f}')
     
     plt.subplot(2, 1, 2)
-    plt.grid(color='lightgray', linestyle='--', linewidth=0.5)
+    #plt.grid(color='lightgray', linestyle='--', linewidth=0.5)
 
     for idx, other_class in enumerate(unique_labels[1:]):
-        y_increment = 0.25 * (max_y_value / (len(unique_labels) - 1))
+        y_increment = 0.025 * (max_y_value / (len(unique_labels) - 1))
         for index, row in df[df[label_column] == other_class].iterrows():
             x_prev, y_prev = 0, 0
             for i, feature in enumerate(feature_columns):
@@ -205,15 +208,16 @@ def plot_glyphs(df, dataset_name, coefficients=None, accuracy=None):
             plt.scatter(x_i, y_i, marker='s', color='black', s=8, zorder=3)
         left_percentage, right_percentage = percentages[other_class]
         y_position = idx * y_increment
-        plt.text(0.05, midpoint_y / 2 + y_position, f"{left_percentage:.2f}%", fontsize=12, ha="left", va="center")
-        plt.text(max_x_value - 0.1, midpoint_y / 2 + y_position, f"{right_percentage:.2f}%", fontsize=12, ha="right", va="center")
-        
+        plt.text(0.05, 0.025 + y_position, f"{left_percentage:.2f}% of {other_class}", fontsize=12, transform=plt.gcf().transFigure)
+        plt.text(0.95, 0.025 + y_position, f"{right_percentage:.2f}% of {other_class}", fontsize=12, ha="right", transform=plt.gcf().transFigure)
+    plt.xticks([])  # Remove x-axis numbering
+    plt.yticks([])  # Remove y-axis numbering  
     # Find the midpoint for the LDA separation line and plot it
     midpoint_x, midpoint_y = find_lda_separation_line(df, lda_model, feature_columns, label_column, angles)
     plot_lda_separation_line(midpoint_x, midpoint_y)
 
-    plt.xlim(0, max_x_value + 0.1)
-    plt.ylim(0, max_y_value + 0.1)
+    plt.xlim(0, max_max + 0.1)
+    plt.ylim(0, max_max + 0.1)
     plt.gca().invert_yaxis()
     
     def close(event):
@@ -221,6 +225,8 @@ def plot_glyphs(df, dataset_name, coefficients=None, accuracy=None):
             plt.close(event.canvas.figure)
             
     plt.connect('key_press_event', close)
+    
+    plt.tight_layout()
     plt.show()
 
 if __name__ == "__main__":
