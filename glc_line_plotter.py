@@ -158,6 +158,7 @@ def plot_glyphs(df, dataset_name, coefficients=None, accuracy=None):
     half_y_value = max_y_value / 2
     plt.subplot(2, 1, 1)
     #plt.grid(color='lightgray', linestyle='--', linewidth=0.5)
+    plt.gca().set_facecolor('lightgrey')
     custom_lines = [plt.Line2D([0], [0], color=color, lw=4) for color in label_to_color.values()]
     plt.legend(custom_lines, unique_labels, title='Class')
     first_class = unique_labels[0]
@@ -185,13 +186,12 @@ def plot_glyphs(df, dataset_name, coefficients=None, accuracy=None):
     plot_lda_separation_line(midpoint_x, midpoint_y)
     plt.xlim(0, max_max + 0.1)
     plt.ylim(0, max_max + 0.1)
-
     classes = ', '.join(map(str, unique_labels[1:]))
     plt.title(f'GLC-L Graph of {dataset_name} - {first_class} vs {classes}  LDA Accuracy: {accuracy:.2f}')
     
     plt.subplot(2, 1, 2)
     #plt.grid(color='lightgray', linestyle='--', linewidth=0.5)
-
+    plt.gca().set_facecolor('lightgrey')
     for idx, other_class in enumerate(unique_labels[1:]):
         y_increment = 0.025 * (max_y_value / (len(unique_labels) - 1))
         for index, row in df[df[label_column] == other_class].iterrows():
