@@ -2,9 +2,9 @@ import argparse
 import random
 import pandas as pd
 import numpy as np
-from sklearn.preprocessing import MinMaxScaler
 import matplotlib.pyplot as plt
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from concurrent.futures import ThreadPoolExecutor
 
 def attribute_based_scaling(df, feature_columns):
     for col in feature_columns:
@@ -15,26 +15,27 @@ def attribute_based_scaling(df, feature_columns):
 def compute_angles(coefficients):
     c_max = np.max(coefficients)
     normalized_coefficients = coefficients / c_max
-    # Clip the values to be in the range [-1, 1]
     normalized_coefficients = np.clip(normalized_coefficients, -1, 1)
     transformed_coefficients = np.cos(np.arccos(normalized_coefficients))
     angles = np.arccos(np.abs(transformed_coefficients))
     return angles
 
-def coefficients_search(df, feature_columns, label_column, epochs=10):
+def evaluate_thread(coefficients, df, feature_columns, label_column, result):
+    angles = compute_angles(coefficients)
+    current_accuracy = evaluateCoefficients(df, feature_columns, label_column, angles)
+    result.append((coefficients, current_accuracy))
+
+def coefficients_search(df, feature_columns, label_column, epochs=10, n_threads=4):
     best_coefficients = []
     best_accuracy = 0
-    
-    for n in range(epochs):
-        # Generate random coefficients between -1 and 1
-        coefficients = [random.uniform(-1, 1) for _ in range(len(feature_columns))]
-        
-        # Convert coefficients to angles
-        angles = compute_angles(coefficients)
-        
-        # Evaluate the current set of coefficients
-        current_accuracy = evaluateCoefficients(df, feature_columns, label_column, angles)
-        
+    results = []
+
+    with ThreadPoolExecutor(max_workers=n_threads) as executor:
+        for n in range(epochs):
+            coefficients = [random.uniform(-1, 1) for _ in range(len(feature_columns))]
+            executor.submit(evaluate_thread, coefficients, df, feature_columns, label_column, results)
+            
+    for coefficients, current_accuracy in results:
         if current_accuracy > best_accuracy:
             best_coefficients = coefficients
             best_accuracy = current_accuracy

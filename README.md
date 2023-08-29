@@ -92,6 +92,12 @@ These python libraries are required to run these scripts.
 
     ![Collocated Paired Coordinates Demo](screenshots/collocated.png)
 
+7. 3D GLC-L Rotation.
+    - GLC-L: with additional z-axis using tan function.
+    - SVM determined boundary border.
+
+    ![Demo example](screenshots/glcl_3d_rotation_1_degree_svm.gif)
+
 ---
 
 ### Aknowledgements

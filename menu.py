@@ -20,7 +20,7 @@ def main():
     data_dict = {}
     
     window_width = 425
-    window_height = 500
+    window_height = 550
     screen_width = app.winfo_screenwidth()
     screen_height = app.winfo_screenheight()
     x_coordinate = int((screen_width/2) - (window_width/2))
@@ -72,6 +72,10 @@ def main():
     glc_button = ttk.Button(app, text="General Line Coordinates Linear", command=launch_glc_line_plotter, state=tk.DISABLED)
     glc_button.pack(pady=5, fill='x', padx=100)
     
+    global glc_3d_rotate_button
+    glc_3d_rotate_button = ttk.Button(app, text="3D GLC-L Rotate", command=launch_glc_3d_rotate_plotter, state=tk.DISABLED)
+    glc_3d_rotate_button.pack(pady=5, fill='x', padx=100)
+    
     global circular_button
     circular_button = ttk.Button(app, text="Circular Coordinates", command=launch_circular_plotter, state=tk.DISABLED)
     circular_button.pack(pady=5, fill='x', padx=100)
@@ -113,13 +117,14 @@ def load_and_process_csv():
         "labels": labels
     }
     
-    global plotly_demo_button, circular_button, envelope_button, glc_button, tree_glyph_button, collocated_button
+    global plotly_demo_button, circular_button, envelope_button, glc_button, tree_glyph_button, collocated_button, glc_3d_rotate_button
     plotly_demo_button.config(state=tk.NORMAL)
     envelope_button.config(state=tk.NORMAL)
     circular_button.config(state=tk.NORMAL)
     glc_button.config(state=tk.NORMAL)
     tree_glyph_button.config(state=tk.NORMAL)
     collocated_button.config(state=tk.NORMAL)
+    glc_3d_rotate_button.config(state=tk.NORMAL)
     
     display_dataset_info()
 
@@ -174,6 +179,12 @@ def launch_collocated_plotter():
     global data_dict
     app.withdraw()
     subprocess.run(["python", "collocated_plotter.py", "--file_path", data_dict["file_path"]])
+    app.deiconify()
+
+def launch_glc_3d_rotate_plotter():
+    global data_dict
+    app.withdraw()
+    subprocess.run(["python", "glc_3d_rotate.py", "--file_path", data_dict["file_path"]])
     app.deiconify()
 
 def launch_github():
