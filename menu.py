@@ -60,9 +60,9 @@ def main():
     plotly_demo_button = ttk.Button(parallel_coords_frame, text="Parallel: Inversions", command=launch_plotly_demo, state=tk.DISABLED)
     plotly_demo_button.pack(side="right", padx=5, expand=True, fill='x')
 
-    global collocated_button
-    collocated_button = ttk.Button(app, text="Collocated Paired Coordinates", command=launch_collocated_plotter, state=tk.DISABLED)
-    collocated_button.pack(pady=5, fill='x', padx=100)    
+    global shifted_paired_button
+    shifted_paired_button = ttk.Button(app, text="Shifted Paired Coordinates", command=launch_shifted_paired, state=tk.DISABLED)
+    shifted_paired_button.pack(pady=5, fill='x', padx=100)    
 
     global tree_glyph_button
     tree_glyph_button = ttk.Button(app, text="Tree Glyphs", command=launch_tree_glyph_plotter, state=tk.DISABLED)
@@ -117,13 +117,13 @@ def load_and_process_csv():
         "labels": labels
     }
     
-    global plotly_demo_button, circular_button, envelope_button, glc_button, tree_glyph_button, collocated_button, glc_3d_rotate_button
+    global plotly_demo_button, circular_button, envelope_button, glc_button, tree_glyph_button, shifted_paired_button, glc_3d_rotate_button
     plotly_demo_button.config(state=tk.NORMAL)
     envelope_button.config(state=tk.NORMAL)
     circular_button.config(state=tk.NORMAL)
     glc_button.config(state=tk.NORMAL)
     tree_glyph_button.config(state=tk.NORMAL)
-    collocated_button.config(state=tk.NORMAL)
+    shifted_paired_button.config(state=tk.NORMAL)
     glc_3d_rotate_button.config(state=tk.NORMAL)
     
     display_dataset_info()
@@ -175,10 +175,10 @@ def launch_tree_glyph_plotter():
     subprocess.run(["python", "tree_glyph_plotter.py", "--file_path", data_dict["file_path"]])
     app.deiconify()
 
-def launch_collocated_plotter():
+def launch_shifted_paired():
     global data_dict
     app.withdraw()
-    subprocess.run(["python", "collocated_plotter.py", "--file_path", data_dict["file_path"]])
+    subprocess.run(["python", "shifted_paired.py", "--file_path", data_dict["file_path"]])
     app.deiconify()
 
 def launch_glc_3d_rotate_plotter():

@@ -135,7 +135,7 @@ def draw_plot():
             line = Line2D([fig_coord1[0], fig_coord2[0]], [fig_coord1[1], fig_coord2[1]], transform=fig.transFigure, color=color, alpha=0.33)
             fig.lines.append(line)
     cols = current_permutation
-    plt.suptitle(f'{dataset_name} in Collocated Paired Coordinates with Permutation: {perm}')
+    plt.suptitle(f'{dataset_name} in Shifted Paired Coordinates with Permutation: {perm}')
     plt.draw()
 
 def visualize_dataset(file_path):

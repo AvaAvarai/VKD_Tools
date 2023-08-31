@@ -83,14 +83,14 @@ These python libraries are required to run these scripts.
 
     ![Tree Glyph Output Demo](screenshots/wheat_seeds_tree_glyphs.png)
 
-6. collocated_plotter.py: Generataes a collocated paired coordinates subplot sequence.
+6. shifted_paired.py: Generataes a shifted paired coordinates subplot sequence.
     - Plots all attributes of feature vectores as normalized paired axis.
     - Connects the feature vector samples with a line across subplots.
     - When feature vector is odd in length duplicates last attribute.
     - Mousewheel scrolls through permutations of the feature vector.
     - Displays Linear Discriminant Analysis resultant coefficient determined permutation first.
 
-    ![Collocated Paired Coordinates Demo](screenshots/collocated.png)
+    ![Collocated Paired Coordinates Demo](screenshots/shifted_paired.png)
 
 7. 3D GLC-L Rotation.
     - GLC-L: with additional z-axis using tan function.
