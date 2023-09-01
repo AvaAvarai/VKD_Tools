@@ -58,7 +58,7 @@ def run_classifier(file_path, classifier_name):
     
     # Perform hyperparameter tuning using GridSearchCV
     if param_grid:
-        grid_search = GridSearchCV(clf, param_grid, cv=5)
+        grid_search = GridSearchCV(clf, param_grid, n_jobs=-1, cv=5)
         grid_search.fit(X, y)
         best_params = grid_search.best_params_
         clf = grid_search.best_estimator_
@@ -71,9 +71,9 @@ def run_classifier(file_path, classifier_name):
     avg_score = np.mean(scores)
     
     feature_names = df.columns[:-1]
-    plot_decision_boundaries(X, y, clf, dataset_name, feature_names, classifier_name)
+    plot_decision_boundaries(X, y, clf, dataset_name, feature_names, classifier_name, df)
 
-def plot_decision_boundaries(X, y, clf, dataset_name, feature_names, classifier_name):
+def plot_decision_boundaries(X, y, clf, dataset_name, feature_names, classifier_name, df):
     n_features = X.shape[1]
     h = .02  # Step size in the mesh
     cmap_light = plt.cm.rainbow
@@ -97,8 +97,8 @@ def plot_decision_boundaries(X, y, clf, dataset_name, feature_names, classifier_
             acc = accuracy_score(y, y_pred)
             accuracies.append(acc)
             
-            # Display accuracy on plot
-            plt.text(0.5, 0.1, f'Acc: {acc:.2f}', horizontalalignment='center', verticalalignment='center', transform=plt.gca().transAxes)
+            # Display accuracy as the title of each subplot
+            plt.title(f'Acc: {acc:.2f}')
             
             # Plot the decision boundary
             x_min, x_max = X_sub[:, 0].min() - 1, X_sub[:, 0].max() + 1
@@ -113,15 +113,22 @@ def plot_decision_boundaries(X, y, clf, dataset_name, feature_names, classifier_
             # Plot the training points
             sc = plt.scatter(X_sub[:, 0], X_sub[:, 1], c=y, cmap=cmap_bold, edgecolor='k', s=20)
             
+            # Set axis labels
+            plt.xlabel(feature_names[j])
+            plt.ylabel(feature_names[i])
+            
     # Add a figure-level legend for the classifications
-    labels = list(set(y))
+    labels = df['class'].unique()
     handles = [plt.Line2D([0], [0], marker='o', color='w', label=label,
-                        markersize=10, markerfacecolor=plt.cm.rainbow(i / len(set(y)))) for i, label in enumerate(set(y))]
-    plt.figlegend(handles=handles, labels=labels, loc='upper center', bbox_to_anchor=(0.5, 0.95), ncol=len(set(y)), title="Classes", bbox_transform=plt.gcf().transFigure)
+                    markersize=10, markerfacecolor=plt.cm.rainbow(i / len(set(y)))) for i, label in enumerate(set(y))]
+    plt.figlegend(handles=list(handles), labels=list(labels), loc='upper center', bbox_to_anchor=(0.5, 0.87), ncol=len(set(y)), title="Classes", bbox_transform=plt.gcf().transFigure)
 
     # Display the average accuracy in the title
     avg_acc = np.mean(accuracies)
-    plt.suptitle(f'{dataset_name} decisions for {classifier_name} Attribute Pairing Matrix (Avg Acc: {avg_acc:.2f})')
+    # include the average accuracy in the title with the dataset name and classifier name and the hyperparameters that are used and not None
+    params = clf.get_params()
+    param_str = ', '.join(f'{key}={value}' for key, value in params.items() if value is not None)
+    plt.suptitle(f'{dataset_name} decisions for {classifier_name} Attribute Pairing Matrix (Avg Acc: {avg_acc:.2f}) Hyperparameters:\n{param_str}', fontsize=14, y=0.92)
     
     plt.tight_layout()
     plt.show()
