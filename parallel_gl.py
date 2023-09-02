@@ -1,102 +1,10 @@
+import argparse
 import glfw
 from OpenGL.GL import *
 from OpenGL.GL.shaders import compileProgram, compileShader
 import pandas as pd
 import numpy as np
 import sys
-import argparse
-
-# Global zoom factor and mouse position
-zoom_factor = 1.0
-mouse_x, mouse_y = 0.0, 0.0
-
-# Scroll callback for GLFW
-def scroll_callback(window, xoffset, yoffset):
-    global zoom_factor
-    zoom_speed = 0.1
-    zoom_factor += yoffset * zoom_speed
-    zoom_factor = max(0.1, min(5.0, zoom_factor))
-
-# Cursor position callback for GLFW
-def cursor_position_callback(window, xpos, ypos):
-    global mouse_x, mouse_y
-    mouse_x, mouse_y = xpos, ypos
-
-def read_csv(file_path):
-    df = pd.read_csv(file_path)
-    df['class'] = df['class'].astype(str)  # Convert 'class' column to string
-    labels = df['class'].unique()
-
-    features = df.drop('class', axis=1).columns
-    
-    # Normalize the data by attribute
-    for feature in features:
-        min_val = df[feature].min()
-        max_val = df[feature].max()
-        df[feature] = (df[feature] - min_val) / (max_val - min_val)
-        
-    return df, labels, features
-
-# Initialize GLFW and OpenGL
-def initialize_window():
-    global width, height
-    
-    width = 800
-    height = 600
-    if not glfw.init():
-        return None
-
-    # Create a windowed mode window and its OpenGL context
-    window = glfw.create_window(width, height, "Parallel Coordinates", None, None)
-    if not window:
-        glfw.terminate()
-        return None
-
-    # Make the window's context current
-    glfw.make_context_current(window)
-    
-    # Set resize callback
-    glfw.set_framebuffer_size_callback(window, framebuffer_size_callback)
-    
-    glfw.set_scroll_callback(window, scroll_callback)
-    glfw.set_cursor_pos_callback(window, cursor_position_callback)
-    
-    return window
-
-# Framebuffer size callback for GLFW
-def framebuffer_size_callback(window, new_width, new_height):
-    global width, height
-    glViewport(0, 0, new_width, new_height)
-    width, height = new_width, new_height
-
-# Compile shaders
-def compile_shaders():
-    vertex_shader = """
-    #version 330
-    in vec2 position;
-    uniform mat4 transform;
-    void main()
-    {
-        gl_Position = transform * vec4(position, 0.0, 1.0);
-    }
-    """
-
-    fragment_shader = """
-    #version 330
-    out vec4 fragColor;
-    uniform vec3 color;
-    void main()
-    {
-        fragColor = vec4(color, 1.0);
-    }
-    """
-
-    shader = compileProgram(
-        compileShader(vertex_shader, GL_VERTEX_SHADER),
-        compileShader(fragment_shader, GL_FRAGMENT_SHADER)
-    )
-
-    return shader
 
 def generate_distinct_colors(n):
     if n == 2:
@@ -111,121 +19,227 @@ def generate_distinct_colors(n):
             colors.append([abs(x) for x in color])
         return colors
 
-def draw(df, labels, features, shader):
-    # Use the shader
-    glUseProgram(shader)
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+def window_resize_callback(window, width, height):
+    glViewport(0, 0, width, height)
 
-    # Generate unique colors for each label
-    distinct_colors = generate_distinct_colors(len(labels))
-    label_to_color = {}
-    for i, label in enumerate(labels):
-        label_to_color[label] = distinct_colors[i]
+# Argument parsing
+parser = argparse.ArgumentParser(description='Plot parallel coordinates from a CSV file.')
+parser.add_argument('--file_path', type=str, required=True, help='Path to the CSV file.')
+args = parser.parse_args()
+file_path = args.file_path
 
-    # Identity transformation matrix (4x4)
-    identity_matrix = np.identity(4, dtype=np.float32)
-    
-    # Margin and scaling factors for graph
-    margin = 0.1
-    scale = 1 - 2 * margin
-    
-    # Calculate pan based on mouse position and zoom factor
-    pan_x = (mouse_x / width - 0.5) * (1.0 - zoom_factor)
-    pan_y = (mouse_y / height - 0.5) * (1.0 - zoom_factor)
+zoom_factor = 1.0
+center_x, center_y = 0.0, 0.0
 
-    # Zoom and pan transformation matrix (4x4)
-    transform_matrix = np.array([
-        [zoom_factor, 0, 0, pan_x],
-        [0, zoom_factor, 0, pan_y],
-        [0, 0, 1, 0],
-        [0, 0, 0, 1]
-    ], dtype=np.float32)
-    
-    glUniformMatrix4fv(glGetUniformLocation(shader, "transform"), 1, GL_FALSE, transform_matrix)
-    
-    # Loop through each data entry and draw lines
-    for index, row in df.iterrows():
-        # Get the label and corresponding color
-        label = row['class']
-        color = label_to_color[label]
-        
-        # Set the color uniform
-        glUniform3f(glGetUniformLocation(shader, "color"), *color)
-        
-        # Set the transformation uniform
-        glUniformMatrix4fv(glGetUniformLocation(shader, "transform"), 1, GL_FALSE, transform_matrix)
-        
-        # Prepare the vertex data
-        vertex_data = []
-        for i, feature in enumerate(features):
-            x = i / (len(features) - 1) * scale + margin   # Map i to [margin, 1-margin]
-            y = row[feature] * scale + margin              # Map feature to [margin, 1-margin]
-            vertex_data.extend([x * 2 - 1, y * 2 - 1])     # Map to [-1, 1]
-        
-        # Send the vertex data to the GPU and draw lines
-        vertex_buffer = glGenBuffers(1)
-        glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer)
-        glBufferData(GL_ARRAY_BUFFER, np.array(vertex_data, dtype=np.float32), GL_STATIC_DRAW)
-        
-        position = glGetAttribLocation(shader, "position")
-        glEnableVertexAttribArray(position)
-        glVertexAttribPointer(position, 2, GL_FLOAT, GL_FALSE, 0, ctypes.c_void_p(0))
-        
-        glDrawArrays(GL_LINE_STRIP, 0, len(features))
+# Initialize GLFW
+if not glfw.init():
+    sys.exit()
 
-        
-        glDeleteBuffers(1, [vertex_buffer])
+# Get the screen size
+monitor = glfw.get_primary_monitor()
+video_mode = glfw.get_video_mode(monitor)
+screen_width, screen_height = video_mode.size
 
-    # Draw white axes
-    glUniform3f(glGetUniformLocation(shader, "color"), 1.0, 1.0, 1.0)  # Set color to white
-    for i, feature in enumerate(features):
-        x = i / (len(features) - 1) * scale + margin  # Map i to [margin, 1-margin]
-        vertex_data = [
-            x * 2 - 1, margin * 2 - 1,  # Bottom point
-            x * 2 - 1, (1 - margin) * 2 - 1  # Top point
-        ]
-        
-        # Send the vertex data to the GPU and draw lines
-        vertex_buffer = glGenBuffers(1)
-        glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer)
-        glBufferData(GL_ARRAY_BUFFER, np.array(vertex_data, dtype=np.float32), GL_STATIC_DRAW)
-        
-        position = glGetAttribLocation(shader, "position")
-        glEnableVertexAttribArray(position)
-        glVertexAttribPointer(position, 2, GL_FLOAT, GL_FALSE, 0, ctypes.c_void_p(0))
-        
-        glDrawArrays(GL_LINES, 0, 2)  # Draw a line segment for the axis
-        glDeleteBuffers(1, [vertex_buffer])
+# Calculate the position to center the window
+window_width, window_height = 1200, 800
+pos_x = (screen_width - window_width) // 2
+pos_y = (screen_height - window_height) // 2
 
-    # Stop using the shader
-    glUseProgram(0)
+# Create a GLFW window
+window = glfw.create_window(window_width, window_height, "Parallel Coordinates", None, None)
 
-def main(file_path):
-    global shader, features, labels, df
-    
-    df, labels, features = read_csv(file_path)
-    window = initialize_window()
-
-    if window is None:
-        return
-
-    shader = compile_shaders()
-
-    while not glfw.window_should_close(window):
-        glClear(GL_COLOR_BUFFER_BIT)  # Clear the frame buffer
-        draw(df, labels, features, shader) # Draw here
-
-        # Swap front and back buffers
-        glfw.swap_buffers(window)
-
-        # Poll for and process events
-        glfw.poll_events()
-
+# Check window creation
+if not window:
     glfw.terminate()
+    sys.exit()
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Render parallel coordinates from a CSV file.')
-    parser.add_argument('--file_path', type=str, required=True, help='Path to the CSV file')
-    args = parser.parse_args()
+# Center the window
+glfw.set_window_pos(window, pos_x, pos_y)
 
-    main(args.file_path)
+def cursor_position_callback(window, xpos, ypos):
+    global center_x, center_y
+    center_x = (xpos / 800.0) * 2.0 - 1.0  # Convert to NDC
+    center_y = 1.0 - (ypos / 600.0) * 2.0  # Convert to NDC
+
+glfw.set_cursor_pos_callback(window, cursor_position_callback)
+
+def scroll_callback(window, x_offset, y_offset):
+    global zoom_factor
+    zoom_factor += y_offset * 0.1
+    zoom_factor = max(0.1, min(10.0, zoom_factor))  # Limit zoom factor between 0.1 and 3.0
+
+glfw.set_scroll_callback(window, scroll_callback)
+
+# Key callback function
+def key_callback(window, key, scancode, action, mods):
+    if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
+        glfw.set_window_should_close(window, True)
+    elif key == glfw.KEY_W and mods == glfw.MOD_CONTROL and action == glfw.PRESS:
+        glfw.set_window_should_close(window, True)
+
+# Set key callback
+glfw.set_key_callback(window, key_callback)
+
+glfw.set_window_size_callback(window, window_resize_callback)
+
+# Make the window's context current
+glfw.make_context_current(window)
+
+# Shader setup
+vertex_shader = """
+#version 330 core
+layout (location = 0) in vec2 aPos;
+layout (location = 1) in vec3 aColor;
+
+uniform vec3 uniformColor;
+uniform bool useUniformColor;
+uniform float zoomFactor;
+uniform vec2 zoomCenter;
+
+out vec3 ourColor;
+
+void main()
+{
+    vec2 zoomedPos = (aPos - zoomCenter) * zoomFactor + zoomCenter;
+    gl_Position = vec4(zoomedPos.x, zoomedPos.y, 0.0, 1.0);
+    ourColor = useUniformColor ? uniformColor : aColor;
+}
+
+"""
+
+fragment_shader = """
+#version 330 core
+out vec4 FragColor;
+in vec3 ourColor;
+
+void main()
+{
+    FragColor = vec4(ourColor, 1.0);
+}
+"""
+
+shader = compileProgram(
+    compileShader(vertex_shader, GL_VERTEX_SHADER),
+    compileShader(fragment_shader, GL_FRAGMENT_SHADER)
+)
+
+# Read and preprocess the CSV file
+def read_and_preprocess_csv(file_path):
+    df = pd.read_csv(file_path)
+    df_normalized = (df.drop(columns=['class']) - df.drop(columns=['class']).min()) / (df.drop(columns=['class']).max() - df.drop(columns=['class']).min())
+    df_normalized['class'] = df['class']
+    unique_classes = df_normalized['class'].unique()
+    n = len(unique_classes)
+    color_list = generate_distinct_colors(n)
+    colors = {cls: color for cls, color in zip(unique_classes, color_list)}
+    return df_normalized, colors
+
+df_normalized, colors = read_and_preprocess_csv(file_path)
+margin = 0.1  # Define the margin here
+
+# Function to convert DataFrame to vertex and color data
+def df_to_vertex_data(df, colors):
+    vertices = []
+    vertex_colors = []
+    num_features = len(df.columns) - 1  # excluding 'class' column
+    for _, row in df.iterrows():
+        cls = row['class']
+        color = colors[cls]
+        for i in range(num_features - 1):
+            x1 = i / (num_features - 1) * 2 - 1
+            y1 = row[i] * 2 - 1
+            x2 = (i + 1) / (num_features - 1) * 2 - 1
+            y2 = row[i + 1] * 2 - 1
+            # Apply the margin
+            x1, x2 = x1 * (1 - margin), x2 * (1 - margin)
+            y1, y2 = y1 * (1 - margin), y2 * (1 - margin)
+            vertices.extend([(x1, y1), (x2, y2)])
+            vertex_colors.extend([color, color])
+    return np.array(vertices, dtype=np.float32), np.array(vertex_colors, dtype=np.float32)
+
+vertex_data, color_data = df_to_vertex_data(df_normalized, colors)
+
+# Create vertex buffer object (VBO)
+VBO = glGenBuffers(1)
+glBindBuffer(GL_ARRAY_BUFFER, VBO)
+glBufferData(GL_ARRAY_BUFFER, vertex_data.nbytes, vertex_data, GL_STATIC_DRAW)
+
+# Create color buffer object (CBO)
+CBO = glGenBuffers(1)
+glBindBuffer(GL_ARRAY_BUFFER, CBO)
+glBufferData(GL_ARRAY_BUFFER, color_data.nbytes, color_data, GL_STATIC_DRAW)
+
+# Create vertex array object (VAO)
+VAO = glGenVertexArrays(1)
+glBindVertexArray(VAO)
+
+# Vertex positions
+glEnableVertexAttribArray(0)
+glBindBuffer(GL_ARRAY_BUFFER, VBO)
+glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, None)
+
+# Vertex colors
+glEnableVertexAttribArray(1)
+glBindBuffer(GL_ARRAY_BUFFER, CBO)
+glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, None)
+
+# Function to create axis vertex data
+def create_axis_data(num_features):
+    axis_vertices = []
+    for i in range(num_features):
+        x = i / (num_features - 1) * 2 - 1
+        # Apply the margin
+        x = x * (1 - margin)
+        axis_vertices.extend([(x, -1 + margin), (x, 1 - margin)])
+    return np.array(axis_vertices, dtype=np.float32)
+
+# Generate axis vertex data
+axis_vertex_data = create_axis_data(len(df_normalized.columns) - 1)
+
+# Create axis vertex buffer object (Axis VBO)
+axis_VBO = glGenBuffers(1)
+glBindBuffer(GL_ARRAY_BUFFER, axis_VBO)
+glBufferData(GL_ARRAY_BUFFER, axis_vertex_data.nbytes, axis_vertex_data, GL_STATIC_DRAW)
+
+# Create axis vertex array object (Axis VAO)
+axis_VAO = glGenVertexArrays(1)
+glBindVertexArray(axis_VAO)
+
+# Axis vertex positions
+glEnableVertexAttribArray(0)
+glBindBuffer(GL_ARRAY_BUFFER, axis_VBO)
+glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, None)
+
+# Main event loop
+while not glfw.window_should_close(window):
+    # Clear the screen
+    glClear(GL_COLOR_BUFFER_BIT)
+    
+    # Use shader
+    glUseProgram(shader)
+    
+    glUniform1f(glGetUniformLocation(shader, "zoomFactor"), zoom_factor)
+    glUniform2f(glGetUniformLocation(shader, "zoomCenter"), center_x, center_y)
+    
+    # Draw parallel coordinates
+    glBindVertexArray(VAO)
+    glUniform1i(glGetUniformLocation(shader, "useUniformColor"), 0)  # Use vertex colors for data lines
+    glDrawArrays(GL_LINES, 0, len(vertex_data))
+    
+    # Draw axes in white
+    glBindVertexArray(axis_VAO)
+    glUniform1i(glGetUniformLocation(shader, "useUniformColor"), 1)  # Use uniform color for axes
+    glUniform3f(glGetUniformLocation(shader, "uniformColor"), 1.0, 1.0, 1.0)  # Set color to white in the shader
+    glDrawArrays(GL_LINES, 0, len(axis_vertex_data))
+    
+    # Swap front and back buffers
+    glfw.swap_buffers(window)
+
+    # Poll for and process events
+    glfw.poll_events()
+
+# Cleanup
+glDeleteBuffers(1, [VBO])
+glDeleteBuffers(1, [CBO])
+glDeleteVertexArrays(1, [VAO])
+glfw.terminate()
