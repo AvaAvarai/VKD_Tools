@@ -80,7 +80,7 @@ def plot_decision_boundaries(X, y, clf, dataset_name, feature_names, classifier_
     cmap_bold = plt.cm.rainbow
     accuracies = []
     
-    plt.figure(figsize=(10, 10))
+    plt.figure(figsize=(8, 8))
     
     for i in range(n_features):
         for j in range(i):
@@ -121,13 +121,14 @@ def plot_decision_boundaries(X, y, clf, dataset_name, feature_names, classifier_
     labels = df['class'].unique()
     handles = [plt.Line2D([0], [0], marker='o', color='w', label=label,
                     markersize=10, markerfacecolor=plt.cm.rainbow(i / len(set(y)))) for i, label in enumerate(set(y))]
-    plt.figlegend(handles=list(handles), labels=list(labels), loc='upper center', bbox_to_anchor=(0.5, 0.87), ncol=len(set(y)), title="Classes", bbox_transform=plt.gcf().transFigure)
+    plt.figlegend(handles=list(handles), labels=list(labels), loc='upper center', bbox_to_anchor=(0.5, 0.85), ncol=len(set(y)), title="Classes", bbox_transform=plt.gcf().transFigure)
 
     # Display the average accuracy in the title
     avg_acc = np.mean(accuracies)
     # include the average accuracy in the title with the dataset name and classifier name and the hyperparameters that are used and not None
     params = clf.get_params()
-    param_str = ', '.join(f'{key}={value}' for key, value in params.items() if value is not None)
+    param_str = ', '.join(f'{key}={value}' for key, value in params.items() if value is not None and value != False and value != -1 and value != 0 and value != 0.0 and value != '0.0')
+
     plt.suptitle(f'{dataset_name} decisions for {classifier_name} Attribute Pairing Matrix (Avg Acc: {avg_acc:.2f}) Hyperparameters:\n{param_str}', fontsize=14, y=0.92)
     
     plt.tight_layout()
