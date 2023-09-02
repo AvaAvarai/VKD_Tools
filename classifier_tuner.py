@@ -1,4 +1,5 @@
 from tkinter import Tk, Label, Button, filedialog, OptionMenu, StringVar
+from matplotlib.colors import ListedColormap
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.metrics import accuracy_score
@@ -71,13 +72,14 @@ def run_classifier(file_path, classifier_name):
     avg_score = np.mean(scores)
     
     feature_names = df.columns[:-1]
-    plot_decision_boundaries(X, y, clf, dataset_name, feature_names, classifier_name, df)
+    plot_decision_boundaries(X, y, clf, dataset_name, feature_names, classifier_name, le)
 
-def plot_decision_boundaries(X, y, clf, dataset_name, feature_names, classifier_name, df):
+def plot_decision_boundaries(X, y, clf, dataset_name, feature_names, classifier_name, le):
     n_features = X.shape[1]
     h = .02  # Step size in the mesh
-    cmap_light = plt.cm.rainbow
-    cmap_bold = plt.cm.rainbow
+    unique_labels = np.unique(y)
+    n_classes = len(unique_labels)
+    cmap_bold = ListedColormap(plt.cm.rainbow(np.linspace(0, 1, n_classes)))
     accuracies = []
     
     plt.figure(figsize=(8, 8))
@@ -108,19 +110,19 @@ def plot_decision_boundaries(X, y, clf, dataset_name, feature_names, classifier_
             
             # Put the result into a color plot
             Z = Z.reshape(xx.shape)
-            plt.pcolormesh(xx, yy, Z, cmap=cmap_light, alpha=0.33)
+            plt.pcolormesh(xx, yy, Z, cmap=cmap_bold, alpha=0.33)
             
             # Plot the training points
-            sc = plt.scatter(X_sub[:, 0], X_sub[:, 1], c=y, cmap=cmap_bold, edgecolor='k', s=20)
+            plt.scatter(X_sub[:, 0], X_sub[:, 1], c=y, cmap=cmap_bold, edgecolor='k', s=20)
             
             # Set axis labels
             plt.xlabel(feature_names[j])
             plt.ylabel(feature_names[i])
             
-    # Add a figure-level legend for the classifications
-    labels = df['class'].unique()
+    # Create handles for the legend
+    labels = le.classes_
     handles = [plt.Line2D([0], [0], marker='o', color='w', label=label,
-                    markersize=10, markerfacecolor=plt.cm.rainbow(i / len(set(y)))) for i, label in enumerate(set(y))]
+                           markersize=10, markerfacecolor=cmap_bold(i / (n_classes - 1))) for i, label in enumerate(le.classes_)]
     plt.figlegend(handles=list(handles), labels=list(labels), loc='upper center', bbox_to_anchor=(0.5, 0.85), ncol=len(set(y)), title="Classes", bbox_transform=plt.gcf().transFigure)
 
     # Display the average accuracy in the title
