@@ -62,20 +62,22 @@ def main():
     tuner_select_dropdown.config(borderwidth=0, highlightthickness=1, highlightbackground="black", highlightcolor="black")
     tuner_select_dropdown.pack(side="right", padx=5, expand=True, fill='x')
     
-    
-
     # Create a frame for the parallel coordinates buttons
     parallel_coords_frame = ttk.Frame(app)
     parallel_coords_frame.pack(pady=5, padx=50, fill='x')
 
     # Add buttons to the parallel_coords_frame
     global envelope_button
-    envelope_button = ttk.Button(parallel_coords_frame, text="Parallel: Envelopes", command=launch_envelope_plotter, state=tk.DISABLED)
+    envelope_button = ttk.Button(parallel_coords_frame, text="PC: Envelopes", command=parallel_envelopes, state=tk.DISABLED)
     envelope_button.pack(side="left", padx=5, expand=True, fill='x')
 
     global plotly_demo_button
-    plotly_demo_button = ttk.Button(parallel_coords_frame, text="Parallel: Inversions", command=launch_plotly_demo, state=tk.DISABLED)
-    plotly_demo_button.pack(side="right", padx=5, expand=True, fill='x')
+    plotly_demo_button = ttk.Button(parallel_coords_frame, text="PC: Inversions", command=launch_plotly_demo, state=tk.DISABLED)
+    plotly_demo_button.pack(side="left", padx=5, expand=True, fill='x')
+
+    global parallel_gl_button
+    parallel_gl_button = ttk.Button(parallel_coords_frame, text="PC: GL", command=launch_parallel_gl, state=tk.DISABLED)
+    parallel_gl_button.pack(side="right", padx=5, expand=True, fill='x')
 
     global shifted_paired_button
     shifted_paired_button = ttk.Button(app, text="Shifted Paired Coordinates", command=launch_shifted_paired, state=tk.DISABLED)
@@ -134,7 +136,7 @@ def load_and_process_csv():
         "labels": labels
     }
     
-    global plotly_demo_button, circular_button, envelope_button, glc_button, tree_glyph_button, shifted_paired_button, glc_3d_rotate_button, tuner_button
+    global plotly_demo_button, circular_button, envelope_button, glc_button, tree_glyph_button, shifted_paired_button, glc_3d_rotate_button, tuner_button, parallel_gl_button
     plotly_demo_button.config(state=tk.NORMAL)
     envelope_button.config(state=tk.NORMAL)
     circular_button.config(state=tk.NORMAL)
@@ -143,6 +145,7 @@ def load_and_process_csv():
     shifted_paired_button.config(state=tk.NORMAL)
     glc_3d_rotate_button.config(state=tk.NORMAL)
     tuner_button.config(state=tk.NORMAL)
+    parallel_gl_button.config(state=tk.NORMAL)
     
     display_dataset_info()
 
@@ -175,16 +178,22 @@ def launch_circular_plotter():
     subprocess.run(["python", "circular_plotter.py", "--file_path", data_dict["file_path"]])
     app.deiconify()
 
-def launch_envelope_plotter():
+def parallel_envelopes():
     global data_dict
     app.withdraw()
-    subprocess.run(["python", "envelope_plotter.py", "--file_path", data_dict["file_path"]])
+    subprocess.run(["python", "parallel_envelopes.py", "--file_path", data_dict["file_path"]])
     app.deiconify()
 
 def launch_plotly_demo():
     global data_dict
     app.withdraw()
     subprocess.run(["python", "plotly_demo.py", "--file_path", data_dict["file_path"]])
+    app.deiconify()
+
+def launch_parallel_gl():
+    global data_dict
+    app.withdraw()
+    subprocess.run(["python", "parallel_gl.py", "--file_path", data_dict["file_path"]])
     app.deiconify()
 
 def launch_glc_line_plotter():

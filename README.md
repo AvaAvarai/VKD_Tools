@@ -3,7 +3,7 @@
 ## Overview
 
 Tools made for visual knowledge discovery of multidimensional classification data.  
-For visualizing and exploring multidimensional data.  
+For visualizing, exploring, and identifying complex n-D data patterns.  
 
 Get started by launching the `menu.py` script and loading a dataset.  
 Datasets can be added to the datasets folder.  
@@ -28,7 +28,7 @@ These python libraries are required to run these scripts.
 
 - matplotlib
 - plotly
-- PyOpenGL
+- PyOpenGL (optionally: pyopengl-accelerate, wheel)
 
 ### User Interface and System Interaction
 
