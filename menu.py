@@ -83,7 +83,7 @@ def main():
     envelope_button.pack(side="left", padx=5, expand=True, fill='x')
 
     global plotly_demo_button
-    plotly_demo_button = ttk.Button(frame_top, text="Axis Inversions and Search", command=launch_plotly_demo, state=tk.DISABLED)
+    plotly_demo_button = ttk.Button(frame_top, text="Axis Inversions and Search", command=launch_parallel_invert, state=tk.DISABLED)
     plotly_demo_button.pack(side="right", padx=5, expand=True, fill='x')
 
     global parallel_hb_button
@@ -211,10 +211,10 @@ def launch_parallel_hb():
     subprocess.run(["python", "parallel_hb.py", "--file_path", data_dict["file_path"]])
     app.deiconify()
 
-def launch_plotly_demo():
+def launch_parallel_invert():
     global data_dict
     app.withdraw()
-    subprocess.run(["python", "plotly_demo.py", "--file_path", data_dict["file_path"]])
+    subprocess.run(["python", "parallel_invert.py", "--file_path", data_dict["file_path"]])
     app.deiconify()
 
 def launch_parallel_gl():
