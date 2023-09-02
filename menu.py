@@ -24,7 +24,7 @@ def main():
     data_dict = {}
     
     window_width = 425
-    window_height = 550
+    window_height = 600
     screen_width = app.winfo_screenwidth()
     screen_height = app.winfo_screenheight()
     x_coordinate = int((screen_width/2) - (window_width/2))
@@ -59,7 +59,7 @@ def main():
     tuner_button.pack(side="left", padx=5, expand=True, fill='x')
     
     tuner_options = ['KNN', 'SVM-Linear', 'SVM-RBF','SVM-Poly', 'Naive Bayes', 'Random Forest', 'LDA', 'Decision Tree', 'Logistic Regression']
-    tuner_select_dropdown = ttk.OptionMenu(tuner_frame, tuner_var, *tuner_options)
+    tuner_select_dropdown = ttk.OptionMenu(tuner_frame, tuner_var, *tuner_options, command=lambda _: tuner_var.set(tuner_var.get()))
     tuner_select_dropdown.pack(side="right", padx=5, expand=True, fill='x')
 
     # Create a frame for the parallel coordinates buttons
