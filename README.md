@@ -45,6 +45,11 @@ These python libraries are required to run these scripts.
 
 ### Visualization Scripts
 
+0. classifier_tuner.py: Tunes the hyperparameters of the selected classifier with a search through common options in 5-fold cross-validation.
+    - Displays results as pair-wise scatterplots of attribute pairng matrix bottom-half.
+
+    ![Tuner demo](screenshots/tuner.png)
+
 1. envelope_plotter.py: Creates an interactive application for plotting envelope-like structures.
     - Utilizes PyQt6 for the graphical user interface.
     - Employs OpenGL for rendering graphical elements.

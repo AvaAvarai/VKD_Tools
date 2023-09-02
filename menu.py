@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog
+from tkinter import Tk, Label, Button, OptionMenu, StringVar
 import webbrowser
 import os
 import subprocess
@@ -17,6 +18,9 @@ def main():
     
     global data_dict
     global info_label
+    global tuner_var
+    tuner_var = tk.StringVar()
+    tuner_var.set('KNN')
     data_dict = {}
     
     window_width = 425
@@ -46,6 +50,17 @@ def main():
 
     program_label = ttk.Label(app, text="Data Visualization Selection", font=("Arial", 11))
     program_label.pack(pady=1)
+
+    tuner_frame = ttk.Frame(app)
+    tuner_frame.pack(pady=5, padx=50, fill='x')
+    
+    global tuner_button
+    tuner_button = ttk.Button(tuner_frame, text="Classifier Tuner", command=launch_classifier_tuner, state=tk.DISABLED)
+    tuner_button.pack(side="left", padx=5, expand=True, fill='x')
+    
+    tuner_options = ['KNN', 'SVM-Linear', 'SVM-RBF','SVM-Poly', 'Naive Bayes', 'Random Forest', 'LDA', 'Decision Tree', 'Logistic Regression']
+    tuner_select_dropdown = ttk.OptionMenu(tuner_frame, tuner_var, *tuner_options)
+    tuner_select_dropdown.pack(side="right", padx=5, expand=True, fill='x')
 
     # Create a frame for the parallel coordinates buttons
     parallel_coords_frame = ttk.Frame(app)
@@ -117,7 +132,7 @@ def load_and_process_csv():
         "labels": labels
     }
     
-    global plotly_demo_button, circular_button, envelope_button, glc_button, tree_glyph_button, shifted_paired_button, glc_3d_rotate_button
+    global plotly_demo_button, circular_button, envelope_button, glc_button, tree_glyph_button, shifted_paired_button, glc_3d_rotate_button, tuner_button
     plotly_demo_button.config(state=tk.NORMAL)
     envelope_button.config(state=tk.NORMAL)
     circular_button.config(state=tk.NORMAL)
@@ -125,6 +140,7 @@ def load_and_process_csv():
     tree_glyph_button.config(state=tk.NORMAL)
     shifted_paired_button.config(state=tk.NORMAL)
     glc_3d_rotate_button.config(state=tk.NORMAL)
+    tuner_button.config(state=tk.NORMAL)
     
     display_dataset_info()
 
@@ -144,6 +160,12 @@ def display_dataset_info():
     info_text = f"CSV Name: {dataset_name}\nPath: {file_path}\nClass Count: {num_unique_labels}\nClass Names: {unique_label_names}\nSample Count: {sample_count}\nNumber of Attributes: {num_attributes}"
     
     info_label.config(text=info_text)
+
+def launch_classifier_tuner():
+    global data_dict
+    app.withdraw()
+    subprocess.run(["python", "classifier_tuner.py", "--file_path", data_dict["file_path"], "--classifier_name", tuner_var.get()])
+    app.deiconify()
 
 def launch_circular_plotter():
     global data_dict

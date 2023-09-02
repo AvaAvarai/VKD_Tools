@@ -1,4 +1,3 @@
-from tkinter import Tk, Label, Button, filedialog, OptionMenu, StringVar
 from matplotlib.colors import ListedColormap
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -13,6 +12,7 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import LabelEncoder
 import numpy as np
+import argparse
 
 # Initialize the classifiers and their parameter grids
 classifiers = {
@@ -136,33 +136,10 @@ def plot_decision_boundaries(X, y, clf, dataset_name, feature_names, classifier_
     plt.tight_layout()
     plt.show()
 
-class ClassifierApp:
-    def __init__(self, master):
-        self.master = master
-        master.title("Classifier Tool")
+# Parse command line arguments
+parser = argparse.ArgumentParser(description="3D GLC-L Visualization with SVM Boundary Curve")
+parser.add_argument("--file_path", required=True, help="Path to the CSV file containing the dataset")
+parser.add_argument("--classifier_name", required=True, help="Name of the classifier to use")
+args = parser.parse_args()
 
-        self.label = Label(master, text="Select Classifier and Dataset")
-        self.label.pack()
-
-        self.classifier_var = StringVar(master)
-        self.classifier_var.set("KNN")  # default value
-
-        classifier_options = list(classifiers.keys())
-        self.classifier_menu = OptionMenu(master, self.classifier_var, *classifier_options)
-        self.classifier_menu.pack()
-
-        self.select_button = Button(master, text="Select Dataset", command=self.select_file)
-        self.select_button.pack()
-
-        self.run_button = Button(master, text="Run Classifier", command=self.run)
-        self.run_button.pack()
-
-    def select_file(self):
-        self.file_path = filedialog.askopenfilename(filetypes=[("CSV files", "*.csv")])
-
-    def run(self):
-        run_classifier(self.file_path, self.classifier_var.get())
-
-root = Tk()
-app = ClassifierApp(root)
-root.mainloop()
+run_classifier(args.file_path, args.classifier_name)
