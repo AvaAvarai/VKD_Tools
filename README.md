@@ -45,25 +45,17 @@ These python libraries are required to run these scripts.
 
 ### Visualization Scripts
 
-0. classifier_tuner.py: Tunes the hyperparameters of the selected classifier with a search through common options in 5-fold cross-validation.
+1. classifier_tuner.py: Tunes the hyperparameters of the selected classifier with a search through common options in 5-fold cross-validation.
     - Displays results as pair-wise scatterplots of attribute pairng matrix bottom-half.
 
     ![Tuner demo](screenshots/tuner.png)
 
-1. envelope_plotter.py: Creates an interactive application for plotting envelope-like structures.
+2. envelope_plotter.py: Creates an interactive application for plotting envelope-like structures.
     - Utilizes PyQt6 for the graphical user interface.
     - Employs OpenGL for rendering graphical elements.
     - Drag and drop searchable hyper-rectangle with WASD resizing, right-click to clear.
 
     ![Envelope Demo](screenshots/envelope1.png)
-
-2. circular_plotter.py: Produces circular plots using Matplotlib and scikit-learn.
-    - Processes data with Linear Discriminant Analysis and plots discriminant line.
-    - Displays classification confusion matrix.
-    - Handles data preprocessing using Pandas and NumPy.
-    - Draggable LDA discriminant line.
-
-    ![Circular Demo](screenshots/circular1.png)
 
 3. plotly_demo.py: Focuses on data visualization using Plotly.
     - Plots the data in draggable axis parallel coordinates plot.
@@ -71,24 +63,12 @@ These python libraries are required to run these scripts.
 
     ![Plotly Demo](screenshots/plotly1.png)
 
-4. glc_line_plotter.py: Generates GLC linear plot.
-    - Displays first class on top subplot, other classes below.
-    - Projects last glyph per class to x axis.
-    - Processes data with Linear Discriminant Analysis and sorts by coefficient array.
-    - Plots the LDA boundary with a yellow dotted line on x and y axis.
-    - Uses GLC-AL algorithm to run a 100 epoch search for maximized accuracy of coefficients.
+4. parallel_gl.py: Plots parallel coordinates in OpenGL using GPU pipelines.
+    - Zoomable with mouse wheel, panning WIP.
 
-    ![GLC Lines Demo](screenshots/glc_l_al.png)
+    ![PC GL Demo](screenshots/pc_gl.png)
 
-5. tree_glyph_plotter.py: Generates high-dimensional data visualization using tree-like glyphs.
-    - Lossless visualization of high-dimensional data.
-    - Plots a permutation of the feature vecture in tree glyphs.
-    - Plotted permutation can be cycled with the mouse wheel.
-    - Displays Linear Discriminant Analysis resultant coefficient determined permutation first.
-
-    ![Tree Glyph Output Demo](screenshots/wheat_seeds_tree_glyphs.png)
-
-6. shifted_paired.py: Generataes a shifted paired coordinates subplot sequence.
+5. shifted_paired.py: Generataes a shifted paired coordinates subplot sequence.
     - Plots all attributes of feature vectores as normalized paired axis.
     - Connects the feature vector samples with a line across subplots.
     - When feature vector is odd in length duplicates last attribute.
@@ -97,11 +77,36 @@ These python libraries are required to run these scripts.
 
     ![Collocated Paired Coordinates Demo](screenshots/shifted_paired.png)
 
-7. 3D GLC-L Rotation.
+6. tree_glyph_plotter.py: Generates high-dimensional data visualization using tree-like glyphs.
+    - Lossless visualization of high-dimensional data.
+    - Plots a permutation of the feature vecture in tree glyphs.
+    - Plotted permutation can be cycled with the mouse wheel.
+    - Displays Linear Discriminant Analysis resultant coefficient determined permutation first.
+
+    ![Tree Glyph Output Demo](screenshots/wheat_seeds_tree_glyphs.png)
+
+7. glc_line_plotter.py: Generates GLC linear plot.
+    - Displays first class on top subplot, other classes below.
+    - Projects last glyph per class to x axis.
+    - Processes data with Linear Discriminant Analysis and sorts by coefficient array.
+    - Plots the LDA boundary with a yellow dotted line on x and y axis.
+    - Uses GLC-AL algorithm to run a 100 epoch search for maximized accuracy of coefficients.
+
+    ![GLC Lines Demo](screenshots/glc_l_al.png)
+
+8. 3D GLC-L Rotation.
     - GLC-L: with additional z-axis using tan function.
     - SVM determined boundary border.
 
     ![Demo example](screenshots/glcl_3d_rotation_1_degree_svm.gif)
+
+9. circular_plotter.py: Produces circular plots using Matplotlib and scikit-learn.
+    - Processes data with Linear Discriminant Analysis and plots discriminant line.
+    - Displays classification confusion matrix.
+    - Handles data preprocessing using Pandas and NumPy.
+    - Draggable LDA discriminant line.
+
+    ![Circular Demo](screenshots/circular1.png)
 
 ---
 
