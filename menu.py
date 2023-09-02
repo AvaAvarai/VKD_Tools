@@ -38,20 +38,26 @@ def main():
     )
     style.configure('TLabel', font=('Arial', 14, 'bold'), foreground='black')
 
-    program_label = ttk.Label(app, text="Visual Knowledge Discovery Tools")
+    main_frame = ttk.Frame(app, relief='groove', borderwidth=4)
+    main_frame.pack(pady=5, fill='x')
+
+    program_label = ttk.Label(main_frame, text="Visual Knowledge Discovery Tools")
     program_label.pack(pady=10)
 
-    program_label = ttk.Label(app, text="Dataset Selection", font=("Arial", 11))
-    program_label.pack(pady=1)
+    data_frame = ttk.Frame(main_frame, relief='groove', borderwidth=4)
+    data_frame.pack(pady=2, fill='x')
 
-    load_csv_button = ttk.Button(app, text="Load Dataset", command=load_and_process_csv)
-    load_csv_button.pack(pady=5, fill='x', padx=100)
+    program_label = ttk.Label(data_frame, text="Dataset Selection", font=("Arial", 11))
+    program_label.pack(pady=2)
 
-    program_label = ttk.Label(app, text="Data Visualization Selection", font=("Arial", 11))
-    program_label.pack(pady=1)
+    load_csv_button = ttk.Button(data_frame, text="Load Dataset", command=load_and_process_csv)
+    load_csv_button.pack(pady=2)
 
-    tuner_frame = ttk.Frame(app)
-    tuner_frame.pack(pady=5, padx=50, fill='x')
+    program_label = ttk.Label(main_frame, text="Data Visualization Selection", font=("Arial", 11))
+    program_label.pack(pady=2)
+
+    tuner_frame = ttk.Frame(main_frame)
+    tuner_frame.pack(pady=2)
     
     global tuner_button
     tuner_button = ttk.Button(tuner_frame, text="Classifier Tuner", command=launch_classifier_tuner, state=tk.DISABLED)
@@ -63,8 +69,8 @@ def main():
     tuner_select_dropdown.pack(side="right", padx=5, expand=True, fill='x')
     
     # Create a frame for the parallel coordinates buttons
-    parallel_coords_frame = ttk.Frame(app)
-    parallel_coords_frame.pack(pady=5, fill='x')
+    parallel_coords_frame = ttk.Frame(main_frame)
+    parallel_coords_frame.pack(pady=2, fill='x')
 
     # Add a label above the buttons
     parallel_coords_label = ttk.Label(parallel_coords_frame, text="Parallel Coordinates", font=("Arial", 11))
@@ -72,18 +78,18 @@ def main():
 
     # Create 2x2 sub-frames within the main frame
     frame_top = ttk.Frame(parallel_coords_frame)
-    frame_top.pack(side="top", pady=5)
+    frame_top.pack(side="top", pady=2)
 
     frame_bottom = ttk.Frame(parallel_coords_frame)
-    frame_bottom.pack(side="bottom", pady=5)
+    frame_bottom.pack(side="bottom", pady=2)
 
     # Add buttons to the sub-frames
     global envelope_button
-    envelope_button = ttk.Button(frame_top, text="Envelopes and Search", command=parallel_envelopes, state=tk.DISABLED)
+    envelope_button = ttk.Button(frame_top, text="Envelope Search", command=parallel_envelopes, state=tk.DISABLED)
     envelope_button.pack(side="left", padx=5, expand=True, fill='x')
 
     global plotly_demo_button
-    plotly_demo_button = ttk.Button(frame_top, text="Axis Inversions and Search", command=launch_parallel_invert, state=tk.DISABLED)
+    plotly_demo_button = ttk.Button(frame_top, text="Axes Re-Order Search", command=launch_parallel_invert, state=tk.DISABLED)
     plotly_demo_button.pack(side="right", padx=5, expand=True, fill='x')
 
     global parallel_hb_button
@@ -95,39 +101,48 @@ def main():
     parallel_gl_button.pack(side="left", padx=5, expand=True, fill='x')
 
     global parallel_curves_button
-    parallel_curves_button = ttk.Button(app, text="Parallel Curves", command=launch_parallel_curves, state=tk.DISABLED)
-    parallel_curves_button.pack(pady=5, fill='x', padx=100)
+    parallel_curves_button = ttk.Button(main_frame, text="Parallel Curves", command=launch_parallel_curves, state=tk.DISABLED)
+    parallel_curves_button.pack(padx=5)    
+
+    misc_label = ttk.Label(main_frame, text="Miscellaneous Visualizations", font=("Arial", 11))
+    misc_label.pack()
 
     global shifted_paired_button
-    shifted_paired_button = ttk.Button(app, text="Shifted Paired Coordinates", command=launch_shifted_paired, state=tk.DISABLED)
-    shifted_paired_button.pack(pady=5, fill='x', padx=100)    
+    shifted_paired_button = ttk.Button(main_frame, text="Shifted Paired Coordinates", command=launch_shifted_paired, state=tk.DISABLED)
+    shifted_paired_button.pack(pady=2, fill='x', padx=100)    
 
     global tree_glyph_button
-    tree_glyph_button = ttk.Button(app, text="Tree Glyphs", command=launch_tree_glyph_plotter, state=tk.DISABLED)
-    tree_glyph_button.pack(pady=5, fill='x', padx=100)
+    tree_glyph_button = ttk.Button(main_frame, text="Tree Glyphs", command=launch_tree_glyph_plotter, state=tk.DISABLED)
+    tree_glyph_button.pack(pady=2, fill='x', padx=100)
+    
+    glc_frame = ttk.Frame(main_frame)
+    glc_frame.pack(side="bottom", pady=2)
+    
+    glc_label = ttk.Label(glc_frame, text="General Line Coordinates", font=("Arial", 11))
+    glc_label.pack()
     
     global glc_button
-    glc_button = ttk.Button(app, text="General Line Coordinates Linear", command=launch_glc_line_plotter, state=tk.DISABLED)
-    glc_button.pack(pady=5, fill='x', padx=100)
+    glc_button = ttk.Button(glc_frame, text="Linear", command=launch_glc_line_plotter, state=tk.DISABLED)
+    glc_button.pack(side="left", padx=5, expand=True, fill='x')
     
     global glc_3d_rotate_button
-    glc_3d_rotate_button = ttk.Button(app, text="3D GLC-L Rotate", command=launch_glc_3d_rotate_plotter, state=tk.DISABLED)
-    glc_3d_rotate_button.pack(pady=5, fill='x', padx=100)
+    glc_3d_rotate_button = ttk.Button(glc_frame, text="3D Rotate", command=launch_glc_3d_rotate_plotter, state=tk.DISABLED)
+    glc_3d_rotate_button.pack(side="right", padx=5, expand=True, fill='x')
     
     global circular_button
-    circular_button = ttk.Button(app, text="Circular Coordinates", command=launch_circular_plotter, state=tk.DISABLED)
+    circular_button = ttk.Button(main_frame, text="Circular Coordinates", command=launch_circular_plotter, state=tk.DISABLED)
     circular_button.pack(pady=5, fill='x', padx=100)
 
     # Create a frame for the GitHub buttons
-    github_buttons_frame = ttk.Frame(app)
+    github_buttons_frame = ttk.Frame(app, relief='groove', borderwidth=4)
     github_buttons_frame.pack(side='bottom', pady=10)
     
     # Add GitHub buttons to the frame
     project_github_button = ttk.Button(github_buttons_frame, text="Project Github", command=launch_github)
-    project_github_button.pack(side="left", padx=15, pady=5)
+    project_github_button.pack(side="left", padx=15, pady=2)
     
     lab_github_button = ttk.Button(github_buttons_frame, text="Lab Github", command=launch_lab_github)
-    lab_github_button.pack(side="right", padx=15, pady=5)
+    lab_github_button.pack(side="right", padx=15, pady=2)
 
     info_label = ttk.Label(app, text="", font=("Arial", 9))
     info_label.pack(pady=10)

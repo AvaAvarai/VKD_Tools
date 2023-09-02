@@ -4,6 +4,7 @@
 
 Tools made for visual knowledge discovery of multidimensional classification data.  
 For visualizing, exploring, and identifying complex n-D data patterns.  
+All visualizations are lossless reversible visualizations.  
 
 Get started by launching the `menu.py` script and loading a dataset.  
 Datasets can be added to the datasets folder.  
