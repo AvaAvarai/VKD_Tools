@@ -23,7 +23,7 @@ def main():
     data_dict = {}
     
     window_width = 425
-    window_height = 600
+    window_height = 650
     screen_width = app.winfo_screenwidth()
     screen_height = app.winfo_screenheight()
     x_coordinate = int((screen_width/2) - (window_width/2))
@@ -64,20 +64,35 @@ def main():
     
     # Create a frame for the parallel coordinates buttons
     parallel_coords_frame = ttk.Frame(app)
-    parallel_coords_frame.pack(pady=5, padx=50, fill='x')
+    parallel_coords_frame.pack(pady=5, fill='x')
 
-    # Add buttons to the parallel_coords_frame
+    # Add a label above the buttons
+    parallel_coords_label = ttk.Label(parallel_coords_frame, text="Parallel Coordinates", font=("Arial", 11))
+    parallel_coords_label.pack()
+
+    # Create 2x2 sub-frames within the main frame
+    frame_top = ttk.Frame(parallel_coords_frame)
+    frame_top.pack(side="top", pady=5)
+
+    frame_bottom = ttk.Frame(parallel_coords_frame)
+    frame_bottom.pack(side="bottom", pady=5)
+
+    # Add buttons to the sub-frames
     global envelope_button
-    envelope_button = ttk.Button(parallel_coords_frame, text="PC: Envelopes", command=parallel_envelopes, state=tk.DISABLED)
+    envelope_button = ttk.Button(frame_top, text="Envelopes and Search", command=parallel_envelopes, state=tk.DISABLED)
     envelope_button.pack(side="left", padx=5, expand=True, fill='x')
 
     global plotly_demo_button
-    plotly_demo_button = ttk.Button(parallel_coords_frame, text="PC: Inversions", command=launch_plotly_demo, state=tk.DISABLED)
-    plotly_demo_button.pack(side="left", padx=5, expand=True, fill='x')
+    plotly_demo_button = ttk.Button(frame_top, text="Axis Inversions and Search", command=launch_plotly_demo, state=tk.DISABLED)
+    plotly_demo_button.pack(side="right", padx=5, expand=True, fill='x')
+
+    global parallel_hb_button
+    parallel_hb_button = ttk.Button(frame_bottom, text="Pure Hyper-Block Grow", command=launch_parallel_hb, state=tk.DISABLED)
+    parallel_hb_button.pack(side="right", padx=5, expand=True, fill='x')
 
     global parallel_gl_button
-    parallel_gl_button = ttk.Button(parallel_coords_frame, text="PC: GL", command=launch_parallel_gl, state=tk.DISABLED)
-    parallel_gl_button.pack(side="right", padx=5, expand=True, fill='x')
+    parallel_gl_button = ttk.Button(frame_bottom, text="OpenGL: GPU Accelerated", command=launch_parallel_gl, state=tk.DISABLED)
+    parallel_gl_button.pack(side="left", padx=5, expand=True, fill='x')
 
     global shifted_paired_button
     shifted_paired_button = ttk.Button(app, text="Shifted Paired Coordinates", command=launch_shifted_paired, state=tk.DISABLED)
@@ -136,7 +151,7 @@ def load_and_process_csv():
         "labels": labels
     }
     
-    global plotly_demo_button, circular_button, envelope_button, glc_button, tree_glyph_button, shifted_paired_button, glc_3d_rotate_button, tuner_button, parallel_gl_button
+    global plotly_demo_button, circular_button, envelope_button, glc_button, tree_glyph_button, shifted_paired_button, glc_3d_rotate_button, tuner_button, parallel_gl_button, parallel_hb_button
     plotly_demo_button.config(state=tk.NORMAL)
     envelope_button.config(state=tk.NORMAL)
     circular_button.config(state=tk.NORMAL)
@@ -146,6 +161,7 @@ def load_and_process_csv():
     glc_3d_rotate_button.config(state=tk.NORMAL)
     tuner_button.config(state=tk.NORMAL)
     parallel_gl_button.config(state=tk.NORMAL)
+    parallel_hb_button.config(state=tk.NORMAL)
     
     display_dataset_info()
 
@@ -182,6 +198,12 @@ def parallel_envelopes():
     global data_dict
     app.withdraw()
     subprocess.run(["python", "parallel_envelopes.py", "--file_path", data_dict["file_path"]])
+    app.deiconify()
+
+def launch_parallel_hb():
+    global data_dict
+    app.withdraw()
+    subprocess.run(["python", "parallel_hb.py", "--file_path", data_dict["file_path"]])
     app.deiconify()
 
 def launch_plotly_demo():
