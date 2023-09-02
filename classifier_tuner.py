@@ -82,7 +82,7 @@ def plot_decision_boundaries(X, y, clf, dataset_name, feature_names, classifier_
     cmap_bold = ListedColormap(plt.cm.rainbow(np.linspace(0, 1, n_classes)))
     accuracies = []
     
-    plt.figure(figsize=(8, 8))
+    plt.figure(figsize=(12, 8))
     
     for i in range(n_features):
         for j in range(i):

@@ -1,7 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog
-from tkinter import Tk, Label, Button, OptionMenu, StringVar
 import webbrowser
 import os
 import subprocess
@@ -56,11 +55,14 @@ def main():
     
     global tuner_button
     tuner_button = ttk.Button(tuner_frame, text="Classifier Tuner", command=launch_classifier_tuner, state=tk.DISABLED)
-    tuner_button.pack(side="left", padx=5, expand=True, fill='x')
+    tuner_button.pack(side="left", padx=5, expand=True, fill='x')    
     
     tuner_options = ['KNN', 'SVM-Linear', 'SVM-RBF','SVM-Poly', 'Naive Bayes', 'Random Forest', 'LDA', 'Decision Tree', 'Logistic Regression']
-    tuner_select_dropdown = ttk.OptionMenu(tuner_frame, tuner_var, *tuner_options, command=lambda _: tuner_var.set(tuner_var.get()))
+    tuner_select_dropdown = tk.OptionMenu(tuner_frame, tuner_var, *tuner_options)
+    tuner_select_dropdown.config(borderwidth=0, highlightthickness=1, highlightbackground="black", highlightcolor="black")
     tuner_select_dropdown.pack(side="right", padx=5, expand=True, fill='x')
+    
+    
 
     # Create a frame for the parallel coordinates buttons
     parallel_coords_frame = ttk.Frame(app)
