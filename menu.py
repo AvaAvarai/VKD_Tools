@@ -94,6 +94,10 @@ def main():
     parallel_gl_button = ttk.Button(frame_bottom, text="OpenGL: GPU Accelerated", command=launch_parallel_gl, state=tk.DISABLED)
     parallel_gl_button.pack(side="left", padx=5, expand=True, fill='x')
 
+    global parallel_curves_button
+    parallel_curves_button = ttk.Button(app, text="Parallel Curves", command=launch_parallel_curves, state=tk.DISABLED)
+    parallel_curves_button.pack(pady=5, fill='x', padx=100)
+
     global shifted_paired_button
     shifted_paired_button = ttk.Button(app, text="Shifted Paired Coordinates", command=launch_shifted_paired, state=tk.DISABLED)
     shifted_paired_button.pack(pady=5, fill='x', padx=100)    
@@ -151,7 +155,7 @@ def load_and_process_csv():
         "labels": labels
     }
     
-    global plotly_demo_button, circular_button, envelope_button, glc_button, tree_glyph_button, shifted_paired_button, glc_3d_rotate_button, tuner_button, parallel_gl_button, parallel_hb_button
+    global plotly_demo_button, circular_button, envelope_button, glc_button, tree_glyph_button, shifted_paired_button, glc_3d_rotate_button, tuner_button, parallel_gl_button, parallel_hb_button, launch_parallel_curves
     plotly_demo_button.config(state=tk.NORMAL)
     envelope_button.config(state=tk.NORMAL)
     circular_button.config(state=tk.NORMAL)
@@ -162,6 +166,7 @@ def load_and_process_csv():
     tuner_button.config(state=tk.NORMAL)
     parallel_gl_button.config(state=tk.NORMAL)
     parallel_hb_button.config(state=tk.NORMAL)
+    parallel_curves_button.config(state=tk.NORMAL)
     
     display_dataset_info()
 
@@ -216,6 +221,12 @@ def launch_parallel_gl():
     global data_dict
     app.withdraw()
     subprocess.run(["python", "parallel_gl.py", "--file_path", data_dict["file_path"]])
+    app.deiconify()
+
+def launch_parallel_curves():
+    global data_dict
+    app.withdraw()
+    subprocess.run(["python", "parallel_curves.py", "--file_path", data_dict["file_path"]])
     app.deiconify()
 
 def launch_glc_line_plotter():
