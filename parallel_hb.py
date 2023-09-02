@@ -1,3 +1,4 @@
+import argparse
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -93,30 +94,46 @@ def create_pure_hbs_optimized(df):
             
     return hbs
 
-# Load and normalize the dataset
-df = pd.read_csv(r'datasets\breast_cancer_wisconsin.csv')
-df_normalized = (df.drop('class', axis=1) - df.drop('class', axis=1).min()) / (df.drop('class', axis=1).max() - df.drop('class', axis=1).min())
-df_normalized['class'] = df['class']
+def main(file_path):
+    # Load and normalize the dataset
+    df = pd.read_csv(file_path)
+    df_normalized = (df.drop('class', axis=1) - df.drop('class', axis=1).min()) / (df.drop('class', axis=1).max() - df.drop('class', axis=1).min())
+    df_normalized['class'] = df['class']
 
-# Create pure HyperBlocks
-pure_hbs = create_pure_hbs_optimized(df_normalized)
+    # Create pure HyperBlocks
+    pure_hbs = create_pure_hbs_optimized(df_normalized)
 
-# Visualize
-plt.figure(figsize=(14, 8))
-ax = plt.gca()
-palette = sns.color_palette("husl", len(df_normalized['class'].unique()))
+    # Visualize
+    plt.figure(figsize=(14, 8))
+    ax = plt.gca()
+    palette = sns.color_palette("husl", len(df_normalized['class'].unique()))
 
-for hb in pure_hbs:
-    feature_columns = df_normalized.columns[df_normalized.columns != 'class']
-    for i in range(len(feature_columns) - 1):
-        feature1 = feature_columns[i]
-        feature2 = feature_columns[i + 1]
-        color = palette[df_normalized['class'].unique().tolist().index(hb['class'])]
-        poly_points = [[i, hb['min'][feature1]], [i + 1, hb['min'][feature2]], 
-                       [i + 1, hb['max'][feature2]], [i, hb['max'][feature1]]]
-        polygon = plt.Polygon(poly_points, closed=True, facecolor=color, edgecolor=color, alpha=0.3)
-        ax.add_patch(polygon)
+    class_color_map = {}
 
-plt.xticks(range(len(df_normalized.columns) - 1), df_normalized.columns[:-1])
-plt.title('Pure HyperBlocks on Parallel Coordinates')
-plt.show()
+    for hb in pure_hbs:
+        feature_columns = df_normalized.columns[df_normalized.columns != 'class']
+        for i in range(len(feature_columns) - 1):
+            feature1 = feature_columns[i]
+            feature2 = feature_columns[i + 1]
+            color = palette[df_normalized['class'].unique().tolist().index(hb['class'])]
+            class_color_map[hb['class']] = color
+            poly_points = [[i, hb['min'][feature1]], [i + 1, hb['min'][feature2]], 
+                           [i + 1, hb['max'][feature2]], [i, hb['max'][feature1]]]
+            polygon = plt.Polygon(poly_points, closed=True, facecolor=color, edgecolor=color, alpha=0.3)
+            ax.add_patch(polygon)
+
+    # Create a custom legend
+    custom_legend = [plt.Line2D([0], [0], color=color, lw=4) for color in class_color_map.values()]
+    plt.legend(custom_legend, class_color_map.keys(), title="Classes")
+
+    data_name = file_path.split('/')[-1].split('.')[0]
+    plt.xticks(range(len(df_normalized.columns) - 1), df_normalized.columns[:-1])
+    plt.title(f'Pure HyperBlocks of {data_name} on Parallel Coordinates')
+    plt.show()
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Render pure HyperBlocks on parallel coordinates from a CSV file.')
+    parser.add_argument('--file_path', type=str, required=True, help='Path to the CSV file')
+    args = parser.parse_args()
+
+    main(args.file_path)
