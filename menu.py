@@ -22,7 +22,7 @@ def main():
     tuner_var.set('KNN')
     data_dict = {}
     
-    window_width = 425
+    window_width = 400
     window_height = 650
     screen_width = app.winfo_screenwidth()
     screen_height = app.winfo_screenheight()
@@ -36,12 +36,11 @@ def main():
         background=[('active', '#2980b9'), ('disabled', '#A9A9A9')],  
         foreground=[('active', 'black'), ('disabled', '#D3D3D3')]
     )
-    style.configure('TLabel', font=('Arial', 14, 'bold'), foreground='black')
-
+    
     main_frame = ttk.Frame(app, relief='groove', borderwidth=4)
     main_frame.pack(pady=5, fill='x')
 
-    program_label = ttk.Label(main_frame, text="Visual Knowledge Discovery Tools")
+    program_label = ttk.Label(main_frame, text="Visual Knowledge Discovery Tools", font=("Arial", 14))
     program_label.pack(pady=10)
 
     data_frame = ttk.Frame(main_frame, relief='groove', borderwidth=4)

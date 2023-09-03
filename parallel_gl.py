@@ -6,6 +6,9 @@ import pandas as pd
 import numpy as np
 import sys
 
+width = 1200
+height = 800
+
 def generate_distinct_colors(n):
     if n == 2:
         return [[1.0, 0.0, 0.0], [0.0, 0.0, 1.0]]  # Red and Blue
@@ -19,7 +22,9 @@ def generate_distinct_colors(n):
             colors.append([abs(x) for x in color])
         return colors
 
-def window_resize_callback(window, width, height):
+def window_resize_callback(window, new_width, new_height):
+    global width, height  # Add this line
+    width, height = new_width, new_height
     glViewport(0, 0, width, height)
 
 # Argument parsing
@@ -30,6 +35,9 @@ file_path = args.file_path
 
 zoom_factor = 1.0
 center_x, center_y = 0.0, 0.0
+
+# Add a variable to keep track of the hovered polyline
+hovered_polyline = None
 
 # Initialize GLFW
 if not glfw.init():
@@ -56,17 +64,100 @@ if not window:
 # Center the window
 glfw.set_window_pos(window, pos_x, pos_y)
 
+INSIDE = 0  # 0000
+LEFT = 1    # 0001
+RIGHT = 2   # 0010
+BOTTOM = 4  # 0100
+TOP = 8     # 1000
+
+def compute_outcode(x, y, xmin, ymin, xmax, ymax):
+    outcode = INSIDE
+    if x < xmin:
+        outcode |= LEFT
+    elif x > xmax:
+        outcode |= RIGHT
+    if y < ymin:
+        outcode |= BOTTOM
+    elif y > ymax:
+        outcode |= TOP
+    return outcode
+
+def hit_test(x, y, vertex_data, num_features, num_rows, zoom_factor, zoom_center_x, zoom_center_y):
+    global hovered_polyline
+    min_distance = 0.01  # Minimum distance for highlighting
+    hovered_polyline = None
+    
+    # Account for zoom in the hit test
+    x = (x - zoom_center_x) / zoom_factor + zoom_center_x
+    y = (y - zoom_center_y) / zoom_factor + zoom_center_y
+
+    # Define the "rectangle" around the mouse pointer
+    xmin, ymin = x - min_distance, y - min_distance
+    xmax, ymax = x + min_distance, y + min_distance
+
+    # loop over the polylines with a stride of vertices_per_polyline
+    for i in range(0, num_rows * 2 * (num_features - 1), 2 * (num_features - 1)):
+        for j in range(num_features - 1):
+            index = i + 2 * j
+
+            if index + 2 >= len(vertex_data):
+                continue
+
+            x1, y1 = vertex_data[index]
+            x2, y2 = vertex_data[index + 2]
+
+            outcode1 = compute_outcode(x1, y1, xmin, ymin, xmax, ymax)
+            outcode2 = compute_outcode(x2, y2, xmin, ymin, xmax, ymax)
+
+            accept = False
+
+            while True:
+                if not (outcode1 | outcode2):
+                    accept = True
+                    break
+                elif outcode1 & outcode2:
+                    break
+                else:
+                    outcode_out = outcode1 if outcode1 else outcode2
+
+                    if outcode_out & TOP:
+                        x = x1 + (x2 - x1) * (ymax - y1) / (y2 - y1)
+                        y = ymax
+                    elif outcode_out & BOTTOM:
+                        x = x1 + (x2 - x1) * (ymin - y1) / (y2 - y1)
+                        y = ymin
+                    elif outcode_out & RIGHT:
+                        y = y1 + (y2 - y1) * (xmax - x1) / (x2 - x1)
+                        x = xmax
+                    elif outcode_out & LEFT:
+                        y = y1 + (y2 - y1) * (xmin - x1) / (x2 - x1)
+                        x = xmin
+
+                    if outcode_out == outcode1:
+                        x1, y1 = x, y
+                        outcode1 = compute_outcode(x1, y1, xmin, ymin, xmax, ymax)
+                    else:
+                        x2, y2 = x, y
+                        outcode2 = compute_outcode(x2, y2, xmin, ymin, xmax, ymax)
+
+            if accept:
+                hovered_polyline = i // (2 * (num_features - 1))
+                return
+
 def cursor_position_callback(window, xpos, ypos):
     global center_x, center_y
-    center_x = (xpos / 800.0) * 2.0 - 1.0  # Convert to NDC
-    center_y = 1.0 - (ypos / 600.0) * 2.0  # Convert to NDC
+    center_x = (xpos / width) * 2.0 - 1.0  # Convert to NDC
+    center_y = 1.0 - (ypos / height) * 2.0  # Convert to NDC    
+    
+    # Added zoom_factor and zoom_center_x, zoom_center_y as arguments
+    hit_test(center_x, center_y, vertex_data, num_features, len(df_normalized), zoom_factor, 0.0, 0.0)
 
 glfw.set_cursor_pos_callback(window, cursor_position_callback)
 
 def scroll_callback(window, x_offset, y_offset):
     global zoom_factor
     zoom_factor += y_offset * 0.1
-    zoom_factor = max(0.1, min(10.0, zoom_factor))  # Limit zoom factor between 0.1 and 3.0
+    zoom_factor = max(0.1, min(15.0, zoom_factor))  # Limit zoom factor
 
 glfw.set_scroll_callback(window, scroll_callback)
 
@@ -84,6 +175,14 @@ glfw.set_window_size_callback(window, window_resize_callback)
 
 # Make the window's context current
 glfw.make_context_current(window)
+
+# Enable anti-aliasing
+glfw.window_hint(glfw.SAMPLES, 4)
+glEnable(GL_MULTISAMPLE)
+
+# use smoothest lines
+glEnable(GL_LINE_SMOOTH)
+glHint(GL_LINE_SMOOTH_HINT, GL_NICEST)
 
 # Shader setup
 vertex_shader = """
@@ -136,6 +235,10 @@ def read_and_preprocess_csv(file_path):
 
 df_normalized, colors = read_and_preprocess_csv(file_path)
 margin = 0.1  # Define the margin here
+
+# After reading the CSV and normalizing it
+df_normalized, colors = read_and_preprocess_csv(file_path)
+num_features = len(df_normalized.columns) - 1  # Excluding 'class' column
 
 # Function to convert DataFrame to vertex and color data
 def df_to_vertex_data(df, colors):
@@ -223,9 +326,22 @@ while not glfw.window_should_close(window):
     
     # Draw parallel coordinates
     glBindVertexArray(VAO)
-    glUniform1i(glGetUniformLocation(shader, "useUniformColor"), 0)  # Use vertex colors for data lines
+
+    glLineWidth(1.0)  # Reset to normal line width
+    glUniform1i(glGetUniformLocation(shader, "useUniformColor"), 0)
     glDrawArrays(GL_LINES, 0, len(vertex_data))
-    
+
+    if hovered_polyline is not None:
+        # Added zoom_factor and zoom_center_x, zoom_center_y as arguments
+        hit_test(center_x, center_y, vertex_data, num_features, len(df_normalized), zoom_factor, 0.0, 0.0)
+
+        glLineWidth(3.0)  # Increase line width
+        glUniform1i(glGetUniformLocation(shader, "useUniformColor"), 1)
+        glUniform3f(glGetUniformLocation(shader, "uniformColor"), 1.0, 1.0, 0.0)
+        # draw the hovered polyline
+        glDrawArrays(GL_LINES, hovered_polyline * (num_features - 1) * 2, (num_features - 1) * 2)
+        
+    glLineWidth(1.0)  # Reset to normal line width
     # Draw axes in white
     glBindVertexArray(axis_VAO)
     glUniform1i(glGetUniformLocation(shader, "useUniformColor"), 1)  # Use uniform color for axes
