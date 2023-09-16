@@ -100,7 +100,7 @@ def main():
     parallel_gl_button.pack(side="left", padx=5, expand=True, fill='x')
 
     global parallel_curves_button
-    parallel_curves_button = ttk.Button(main_frame, text="Parallel Curves", command=launch_parallel_curves, state=tk.DISABLED)
+    parallel_curves_button = ttk.Button(main_frame, text="Andrew's Curves", command=launch_parallel_curves, state=tk.DISABLED)
     parallel_curves_button.pack(padx=5)    
 
     misc_label = ttk.Label(main_frame, text="Miscellaneous Visualizations", font=("Arial", 11))
@@ -108,11 +108,15 @@ def main():
 
     global shifted_paired_button
     shifted_paired_button = ttk.Button(main_frame, text="Shifted Paired Coordinates", command=launch_shifted_paired, state=tk.DISABLED)
-    shifted_paired_button.pack(pady=2, fill='x', padx=100)    
+    shifted_paired_button.pack(pady=2, fill='x', padx=100)
 
     global tree_glyph_button
     tree_glyph_button = ttk.Button(main_frame, text="Tree Glyphs", command=launch_tree_glyph_plotter, state=tk.DISABLED)
     tree_glyph_button.pack(pady=2, fill='x', padx=100)
+    
+    global scc_rings_button  # Declare it as global if you need to modify its state later
+    scc_rings_button = ttk.Button(main_frame, text="Static Circular Rings", command=launch_scc_rings, state=tk.DISABLED)
+    scc_rings_button.pack(pady=5, fill='x', padx=100)
     
     glc_frame = ttk.Frame(main_frame)
     glc_frame.pack(side="bottom", pady=2)
@@ -169,7 +173,7 @@ def load_and_process_csv():
         "labels": labels
     }
     
-    global plotly_demo_button, circular_button, envelope_button, glc_button, tree_glyph_button, shifted_paired_button, glc_3d_rotate_button, tuner_button, parallel_gl_button, parallel_hb_button, launch_parallel_curves
+    global plotly_demo_button, circular_button, envelope_button, glc_button, tree_glyph_button, shifted_paired_button, glc_3d_rotate_button, tuner_button, parallel_gl_button, parallel_hb_button, launch_parallel_curves, scc_rings_button
     plotly_demo_button.config(state=tk.NORMAL)
     envelope_button.config(state=tk.NORMAL)
     circular_button.config(state=tk.NORMAL)
@@ -181,6 +185,7 @@ def load_and_process_csv():
     parallel_gl_button.config(state=tk.NORMAL)
     parallel_hb_button.config(state=tk.NORMAL)
     parallel_curves_button.config(state=tk.NORMAL)
+    scc_rings_button.config(state=tk.NORMAL)
     
     display_dataset_info()
 
@@ -200,6 +205,12 @@ def display_dataset_info():
     info_text = f"CSV Name: {dataset_name}\nPath: {file_path}\nClass Count: {num_unique_labels}\nClass Names: {unique_label_names}\nSample Count: {sample_count}\nNumber of Attributes: {num_attributes}"
     
     info_label.config(text=info_text)
+
+def launch_scc_rings():
+    global data_dict
+    app.withdraw()
+    subprocess.run(["python", "scc_rings.py", "--file_path", data_dict["file_path"]])
+    app.deiconify()
 
 def launch_classifier_tuner():
     global data_dict
