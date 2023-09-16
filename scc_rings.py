@@ -1,3 +1,4 @@
+import argparse
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -53,9 +54,11 @@ def plot_circular_coordinates(data: np.ndarray, target: np.ndarray, attribute_la
     plt.show()
 
 def select_dataset_file():
-    root = Tk()
-    root.withdraw()
-    file_path = filedialog.askopenfilename(filetypes=[("CSV files", "*.csv"), ("All files", "*.*")])
+    # Argument parsing
+    parser = argparse.ArgumentParser(description='Plot parallel coordinates from a CSV file.')
+    parser.add_argument('--file_path', type=str, required=True, help='Path to the CSV file.')
+    args = parser.parse_args()
+    file_path = args.file_path
     return file_path
 
 def plot_from_file(file_path: str):
