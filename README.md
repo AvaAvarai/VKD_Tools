@@ -70,11 +70,15 @@ These python libraries are required to run these scripts.
 
     ![PC GL Demo](screenshots/pc_gl.png)
 
-5. parallel_hb.py: Grows and visualizes pure hyper-blocks.
+5. Parallel Andrew's Curves using matplotlib
+
+    ![PC Curves Demo](screenshots/parallel_curves.png)
+
+6. parallel_hb.py: Grows and visualizes pure hyper-blocks.
 
     ![PC HB Demo](screenshots/parallel_hb.png)
 
-6. shifted_paired.py: Generataes a shifted paired coordinates subplot sequence.
+7. shifted_paired.py: Generataes a shifted paired coordinates subplot sequence.
     - Plots all attributes of feature vectores as normalized paired axis.
     - Connects the feature vector samples with a line across subplots.
     - When feature vector is odd in length duplicates last attribute.
@@ -83,7 +87,7 @@ These python libraries are required to run these scripts.
 
     ![Collocated Paired Coordinates Demo](screenshots/shifted_paired.png)
 
-7. tree_glyph_plotter.py: Generates high-dimensional data visualization using tree-like glyphs.
+8. tree_glyph_plotter.py: Generates high-dimensional data visualization using tree-like glyphs.
     - Lossless visualization of high-dimensional data.
     - Plots a permutation of the feature vecture in tree glyphs.
     - Plotted permutation can be cycled with the mouse wheel.
@@ -91,7 +95,7 @@ These python libraries are required to run these scripts.
 
     ![Tree Glyph Output Demo](screenshots/wheat_seeds_tree_glyphs.png)
 
-8. glc_line_plotter.py: Generates GLC linear plot.
+9. glc_line_plotter.py: Generates GLC linear plot.
     - Displays first class on top subplot, other classes below.
     - Projects last glyph per class to x axis.
     - Processes data with Linear Discriminant Analysis and sorts by coefficient array.
@@ -100,13 +104,13 @@ These python libraries are required to run these scripts.
 
     ![GLC Lines Demo](screenshots/glc_l_al.png)
 
-9. 3D GLC-L Rotation.
+10. 3D GLC-L Rotation.
     - GLC-L: with additional z-axis using tan function.
     - SVM determined boundary border.
 
     ![Demo example](screenshots/glcl_3d_rotation_1_degree_svm.gif)
 
-10. circular_plotter.py: Produces circular plots using Matplotlib and scikit-learn.
+11. circular_plotter.py: Produces circular plots using Matplotlib and scikit-learn.
     - Processes data with Linear Discriminant Analysis and plots discriminant line.
     - Displays classification confusion matrix.
     - Handles data preprocessing using Pandas and NumPy.
