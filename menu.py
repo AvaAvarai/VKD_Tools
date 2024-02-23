@@ -4,8 +4,33 @@ from tkinter import filedialog
 import webbrowser
 import os
 import subprocess
+import sys
 
 import pandas as pd
+
+# Function to detect the correct Python command
+def detect_python_command():
+    try:
+        subprocess.check_output(["python", "--version"])
+        return "python"
+    except subprocess.CalledProcessError:
+        pass
+    except FileNotFoundError:
+        pass
+
+    try:
+        subprocess.check_output(["python3", "--version"])
+        return "python3"
+    except subprocess.CalledProcessError:
+        pass
+    except FileNotFoundError:
+        pass
+
+    print("Neither 'python' nor 'python3' commands are available.")
+    sys.exit(1)
+
+# Detect and set the global Python command
+PYTHON_CMD = detect_python_command()
 
 def main():
     global app
@@ -209,73 +234,73 @@ def display_dataset_info():
 def launch_scc_rings():
     global data_dict
     app.withdraw()
-    subprocess.run(["python", "scc_rings.py", "--file_path", data_dict["file_path"]])
+    subprocess.run([PYTHON_CMD, "scc_rings.py", "--file_path", data_dict["file_path"]])
     app.deiconify()
 
 def launch_classifier_tuner():
     global data_dict
     app.withdraw()
-    subprocess.run(["python", "classifier_tuner.py", "--file_path", data_dict["file_path"], "--classifier_name", tuner_var.get()])
+    subprocess.run([PYTHON_CMD, "classifier_tuner.py", "--file_path", data_dict["file_path"], "--classifier_name", tuner_var.get()])
     app.deiconify()
 
 def launch_circular_plotter():
     global data_dict
     app.withdraw()
-    subprocess.run(["python", "circular_plotter.py", "--file_path", data_dict["file_path"]])
+    subprocess.run([PYTHON_CMD, "circular_plotter.py", "--file_path", data_dict["file_path"]])
     app.deiconify()
 
 def parallel_envelopes():
     global data_dict
     app.withdraw()
-    subprocess.run(["python", "parallel_envelopes.py", "--file_path", data_dict["file_path"]])
+    subprocess.run([PYTHON_CMD, "parallel_envelopes.py", "--file_path", data_dict["file_path"]])
     app.deiconify()
 
 def launch_parallel_hb():
     global data_dict
     app.withdraw()
-    subprocess.run(["python", "parallel_hb.py", "--file_path", data_dict["file_path"]])
+    subprocess.run([PYTHON_CMD, "parallel_hb.py", "--file_path", data_dict["file_path"]])
     app.deiconify()
 
 def launch_parallel_invert():
     global data_dict
     app.withdraw()
-    subprocess.run(["python", "parallel_invert.py", "--file_path", data_dict["file_path"]])
+    subprocess.run([PYTHON_CMD, "parallel_invert.py", "--file_path", data_dict["file_path"]])
     app.deiconify()
 
 def launch_parallel_gl():
     global data_dict
     app.withdraw()
-    subprocess.run(["python", "parallel_gl.py", "--file_path", data_dict["file_path"]])
+    subprocess.run([PYTHON_CMD, "parallel_gl.py", "--file_path", data_dict["file_path"]])
     app.deiconify()
 
 def launch_parallel_curves():
     global data_dict
     app.withdraw()
-    subprocess.run(["python", "parallel_curves.py", "--file_path", data_dict["file_path"]])
+    subprocess.run([PYTHON_CMD, "parallel_curves.py", "--file_path", data_dict["file_path"]])
     app.deiconify()
 
 def launch_glc_line_plotter():
     global data_dict
     app.withdraw()
-    subprocess.run(["python", "glc_line_plotter.py", "--file_path", data_dict["file_path"]])
+    subprocess.run([PYTHON_CMD, "glc_line_plotter.py", "--file_path", data_dict["file_path"]])
     app.deiconify()
 
 def launch_tree_glyph_plotter():
     global data_dict
     app.withdraw()
-    subprocess.run(["python", "tree_glyph_plotter.py", "--file_path", data_dict["file_path"]])
+    subprocess.run([PYTHON_CMD, "tree_glyph_plotter.py", "--file_path", data_dict["file_path"]])
     app.deiconify()
 
 def launch_shifted_paired():
     global data_dict
     app.withdraw()
-    subprocess.run(["python", "shifted_paired.py", "--file_path", data_dict["file_path"]])
+    subprocess.run([PYTHON_CMD, "shifted_paired.py", "--file_path", data_dict["file_path"]])
     app.deiconify()
 
 def launch_glc_3d_rotate_plotter():
     global data_dict
     app.withdraw()
-    subprocess.run(["python", "glc_3d_rotate.py", "--file_path", data_dict["file_path"]])
+    subprocess.run([PYTHON_CMD, "glc_3d_rotate.py", "--file_path", data_dict["file_path"]])
     app.deiconify()
 
 def launch_github():
