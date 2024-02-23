@@ -2,6 +2,7 @@ import argparse
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import os
 
 def fourier_series_same_coeff(x, coefficients, T=2*np.pi):
     result = np.zeros_like(x)
@@ -40,7 +41,8 @@ def main(file_path):
     by_label = dict(zip(labels, handles))
     plt.legend(by_label.values(), by_label.keys(), title="Classes")
 
-    plt.title("Andrew's Curves of Iris Dataset")
+    file_name = os.path.splitext(os.path.basename(file_path))[0]
+    plt.title(f"Andrew's Curves of {file_name} Dataset")
     plt.xlabel('x')
     plt.ylabel('f(x)')
     plt.show()
