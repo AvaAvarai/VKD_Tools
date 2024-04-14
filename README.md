@@ -15,6 +15,8 @@ Select a visualization to explore from the descriptions provided below.
 
 The following Python libraries are required to run the scripts:
 
+To install: `python -m pip install -r requirements.txt`, the requirements.txt file contains all libraries and versions used for pip to install from.  
+
 ### Data Manipulation and Analysis
 
 - pandas
